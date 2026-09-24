@@ -25,16 +25,20 @@
                     </div>
                     <h2 id="login-title">Login</h2>
                     <p class="login-subtitle">Silakan masuk dengan akun Anda</p>
-                    <form class="login-form" action="#" method="post">
+                    @if ($errors->any())
+                        <p class="login-error">{{ $errors->first() }}</p>
+                    @endif
+                    <form class="login-form" action="{{ route('login.authenticate') }}" method="post">
+                        @csrf
                         <label for="username">Username</label>
                         <div class="input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
-                            <input id="username" name="username" type="text" autocomplete="username" placeholder="Username">
+                            <input id="username" name="email" type="email" autocomplete="username" placeholder="Email" value="{{ old('email') }}" required>
                         </div>
                         <label for="password">Password</label>
                         <div class="input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Password">
+                            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Password" required>
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2"/></svg>
                         </div>
                         <button class="login-submit" type="submit">Login <span aria-hidden="true">→</span></button>
