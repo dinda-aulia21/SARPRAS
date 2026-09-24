@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Models\Inventory;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,8 +25,24 @@ Route::get('/admin', function () {
 })->middleware('auth')->name('admin.dashboard');
 
 Route::get('/admin/inventaris', function () {
-    return view('inventaris');
+    return view('inventaris', [
+        'inventories' => Inventory::latest()->get(),
+    ]);
 })->middleware('auth')->name('admin.inventaris');
+
+Route::post('/admin/inventaris', function (Request $request) {
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'category' => ['required', 'string', 'max:100'],
+        'location' => ['required', 'string', 'max:255'],
+        'quantity' => ['required', 'integer', 'min:1'],
+        'condition' => ['required', 'in:Baik,Rusak Ringan,Rusak Berat'],
+    ]);
+
+    Inventory::create($validated);
+
+    return redirect()->route('admin.inventaris')->with('success', 'Inventaris berhasil ditambahkan.');
+})->middleware('auth')->name('admin.inventaris.store');
 
 Route::get('/login', function () {
     return view('login');
