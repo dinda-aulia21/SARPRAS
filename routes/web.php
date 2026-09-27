@@ -22,7 +22,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-$executiveDashboard = function (Request $request) {
+$executiveDashboard = function (Request $request, string $dashboardTitle) {
     $totalQuantity = Inventory::sum('quantity');
     $conditionTotals = Inventory::query()
         ->selectRaw('`condition` as condition_value, SUM(quantity) as total')
@@ -56,6 +56,7 @@ $executiveDashboard = function (Request $request) {
 
     return view('kepala-yayasan', [
         'user' => $request->user(),
+        'dashboardTitle' => $dashboardTitle,
         'totalQuantity' => $totalQuantity,
         'totalGood' => $totalGood,
         'totalMinor' => $totalMinor,
@@ -90,8 +91,14 @@ Route::get('/admin', function () {
 Route::get('/kepala-yayasan', function (Request $request) use ($executiveDashboard) {
     abort_unless($request->user()->role === 'kepala_yayasan', 403);
 
-    return $executiveDashboard($request);
+    return $executiveDashboard($request, 'Kepala Yayasan');
 })->middleware('auth')->name('kepala-yayasan.dashboard');
+
+Route::get('/kepala-sekolah', function (Request $request) use ($executiveDashboard) {
+    abort_unless($request->user()->role === 'kepala_sekolah', 403);
+
+    return $executiveDashboard($request, 'Kepala Sekolah');
+})->middleware('auth')->name('kepala-sekolah.dashboard');
 
 Route::get('/admin/inventaris', function () {
     return view('inventaris', [
@@ -236,6 +243,10 @@ Route::post('/login', function () {
 
     if (Auth::user()->role === 'kepala_yayasan') {
         return redirect()->route('kepala-yayasan.dashboard');
+    }
+
+    if (Auth::user()->role === 'kepala_sekolah') {
+        return redirect()->route('kepala-sekolah.dashboard');
     }
 
     return redirect()->intended(route('admin.dashboard'));

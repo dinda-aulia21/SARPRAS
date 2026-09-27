@@ -3,16 +3,16 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="Dashboard Kepala Yayasan Raudhah Syarifah.">
-        <title>Dashboard Kepala Yayasan | Sarpras</title>
+        <meta name="description" content="Dashboard {{ $dashboardTitle }} Yayasan Raudhah Syarifah.">
+        <title>Dashboard {{ $dashboardTitle }} | Sarpras</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="admin-body">
         <div class="admin-layout">
             <aside class="admin-sidebar" id="admin-sidebar">
-                <a class="admin-brand" href="{{ route('kepala-yayasan.dashboard') }}"><span class="brand-mark" aria-hidden="true">R</span><span>Yayasan Raudhah<br>Syarifah</span></a>
+                <a class="admin-brand" href="{{ $dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard') }}"><span class="brand-mark" aria-hidden="true">R</span><span>Yayasan Raudhah<br>Syarifah</span></a>
                 <nav class="admin-nav" aria-label="Navigasi admin">
-                    <a class="admin-nav-link active" href="{{ route('kepala-yayasan.dashboard') }}" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 13 8-8 8 8v7H4z"/><path d="M9 20v-5h6v5"/></svg>Dashboard</a>
+                    <a class="admin-nav-link active" href="{{ $dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard') }}" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 13 8-8 8 8v7H4z"/><path d="M9 20v-5h6v5"/></svg>Dashboard</a>
                     <a class="admin-nav-link" href="{{ route('admin.inventaris') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM4 7l2-4h12l2 4M9 11h6M8 3v4M16 3v4"/></svg>Data Inventaris</a>
                     <a class="admin-nav-link" href="#lokasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Lokasi</a>
                     <a class="admin-nav-link" href="{{ route('admin.laporan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg>Laporan</a>
@@ -20,7 +20,7 @@
                     <a class="admin-nav-link" href="{{ route('admin.pengaturan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19 13 2-1-2-1-.4-1.1 1-1.8-2.7-2.7-1.8 1L12 6l-1-2-1 2-1.1.4-1.8-1L5.4 6.1l1 1.8L6 9l-2 1 2 1 .4 1.1-1 1.8 2.7 2.7 1.8-1L11 16l1 2 1-2 1.1-.4 1.8 1 2.7-2.7-1-1.8z"/></svg>Pengaturan</a>
                 </nav>
                 <div class="admin-sidebar-footer">
-                    <div class="admin-profile"><span class="profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</span><span><strong>{{ $user->name }}</strong><small>Kepala Yayasan</small></span></div>
+                    <div class="admin-profile"><span class="profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</span><span><strong>{{ $user->name }}</strong><small>{{ $dashboardTitle }}</small></span></div>
                     <form class="admin-logout-form" action="{{ route('logout') }}" method="post">@csrf<button class="admin-logout" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M19 3h2v18h-2"/></svg>Keluar</button></form>
                 </div>
             </aside>
@@ -32,7 +32,7 @@
                 </header>
                 <div class="admin-content executive-dashboard-content">
                     <section class="executive-welcome">
-                        <div class="executive-welcome-copy"><p class="welcome-eyebrow">Selamat Datang,</p><h1>Kepala Yayasan</h1><p>Pantau kondisi sarana dan prasarana Yayasan Raudhah Syarifah secara keseluruhan.</p></div>
+                        <div class="executive-welcome-copy"><p class="welcome-eyebrow">Selamat Datang,</p><h1>{{ $dashboardTitle }}</h1><p>Pantau kondisi sarana dan prasarana Yayasan Raudhah Syarifah secara keseluruhan.</p></div>
                         <div class="executive-welcome-note"><span>Ringkasan manajemen</span><strong>Informasi penting yayasan dalam satu tampilan.</strong></div>
                     </section>
                     <section class="stat-grid executive-stat-grid" aria-label="Ringkasan inventaris">

@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(KepalaYayasanSeeder::class);
+        $this->call(KepalaSekolahSeeder::class);
     }
 }
