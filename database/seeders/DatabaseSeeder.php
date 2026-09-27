@@ -17,7 +17,10 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Administrator',
                 'password' => 'admin123',
+                'role' => 'admin',
             ]
         );
+
+        $this->call(KepalaYayasanSeeder::class);
     }
 }

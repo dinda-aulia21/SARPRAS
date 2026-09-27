@@ -30,7 +30,7 @@
                     @endif
                     <form class="login-form" action="{{ route('login.authenticate') }}" method="post">
                         @csrf
-                        <label for="username">Username</label>
+                        <label for="username">Email</label>
                         <div class="input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
                             <input id="username" name="email" type="email" autocomplete="username" placeholder="Email" value="{{ old('email') }}" required>
