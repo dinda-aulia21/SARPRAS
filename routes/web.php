@@ -84,8 +84,12 @@ $executiveDashboard = function (Request $request, string $dashboardTitle) {
     ]);
 };
 
-Route::get('/admin', function () {
-    return view('admin');
+$requireAdmin = function (Request $request): void {
+    abort_unless($request->user()->role === 'admin', 403);
+};
+
+Route::get('/admin', function (Request $request) use ($executiveDashboard) {
+    return $executiveDashboard($request, 'Admin');
 })->middleware('auth')->name('admin.dashboard');
 
 Route::get('/kepala-yayasan', function (Request $request) use ($executiveDashboard) {
@@ -155,7 +159,9 @@ Route::get('/admin/pengumuman', function (Request $request) {
     ]);
 })->middleware('auth')->name('admin.pengumuman');
 
-Route::post('/admin/pengumuman', function (Request $request) {
+Route::post('/admin/pengumuman', function (Request $request) use ($requireAdmin) {
+    $requireAdmin($request);
+
     $validated = $request->validate([
         'title' => ['required', 'string', 'max:255'],
         'body' => ['required', 'string', 'max:5000'],
@@ -168,7 +174,9 @@ Route::post('/admin/pengumuman', function (Request $request) {
     return redirect()->route('admin.pengumuman')->with('success', 'Pengumuman berhasil ditambahkan.');
 })->middleware('auth')->name('admin.pengumuman.store');
 
-Route::put('/admin/pengumuman/{announcement}', function (Request $request, Announcement $announcement) {
+Route::put('/admin/pengumuman/{announcement}', function (Request $request, Announcement $announcement) use ($requireAdmin) {
+    $requireAdmin($request);
+
     $validated = $request->validate([
         'title' => ['required', 'string', 'max:255'],
         'body' => ['required', 'string', 'max:5000'],
@@ -181,7 +189,9 @@ Route::put('/admin/pengumuman/{announcement}', function (Request $request, Annou
     return redirect()->route('admin.pengumuman')->with('success', 'Pengumuman berhasil diperbarui.');
 })->middleware('auth')->name('admin.pengumuman.update');
 
-Route::delete('/admin/pengumuman/{announcement}', function (Announcement $announcement) {
+Route::delete('/admin/pengumuman/{announcement}', function (Request $request, Announcement $announcement) use ($requireAdmin) {
+    $requireAdmin($request);
+
     $announcement->delete();
 
     return redirect()->route('admin.pengumuman')->with('success', 'Pengumuman berhasil dihapus.');
@@ -209,7 +219,9 @@ Route::put('/admin/pengaturan/password', function (Request $request) {
     return redirect()->route('admin.pengaturan')->with('password_success', 'Password berhasil diperbarui.');
 })->middleware('auth')->name('admin.pengaturan.password');
 
-Route::post('/admin/inventaris', function (Request $request) {
+Route::post('/admin/inventaris', function (Request $request) use ($requireAdmin) {
+    $requireAdmin($request);
+
     $validated = $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'category' => ['required', 'string', 'max:100'],
@@ -222,6 +234,30 @@ Route::post('/admin/inventaris', function (Request $request) {
 
     return redirect()->route('admin.inventaris')->with('success', 'Inventaris berhasil ditambahkan.');
 })->middleware('auth')->name('admin.inventaris.store');
+
+Route::put('/admin/inventaris/{inventory}', function (Request $request, Inventory $inventory) use ($requireAdmin) {
+    $requireAdmin($request);
+
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'category' => ['required', 'string', 'max:100'],
+        'location' => ['required', 'string', 'max:255'],
+        'quantity' => ['required', 'integer', 'min:1'],
+        'condition' => ['required', 'in:Baik,Rusak Ringan,Rusak Berat'],
+    ]);
+
+    $inventory->update($validated);
+
+    return redirect()->route('admin.inventaris')->with('success', 'Data inventaris berhasil diperbarui.');
+})->middleware('auth')->name('admin.inventaris.update');
+
+Route::delete('/admin/inventaris/{inventory}', function (Request $request, Inventory $inventory) use ($requireAdmin) {
+    $requireAdmin($request);
+
+    $inventory->delete();
+
+    return redirect()->route('admin.inventaris')->with('success', 'Data inventaris berhasil dihapus.');
+})->middleware('auth')->name('admin.inventaris.destroy');
 
 Route::get('/login', function () {
     return view('login');

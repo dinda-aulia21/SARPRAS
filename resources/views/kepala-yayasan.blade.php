@@ -10,14 +10,14 @@
     <body class="admin-body">
         <div class="admin-layout">
             <aside class="admin-sidebar" id="admin-sidebar">
-                <a class="admin-brand" href="{{ $dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard') }}"><span class="brand-mark" aria-hidden="true">R</span><span>Yayasan Raudhah<br>Syarifah</span></a>
+                <a class="admin-brand" href="{{ $dashboardTitle === 'Admin' ? route('admin.dashboard') : ($dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard')) }}"><span class="brand-mark" aria-hidden="true">R</span><span>Yayasan Raudhah<br>Syarifah</span></a>
                 <nav class="admin-nav" aria-label="Navigasi admin">
-                    <a class="admin-nav-link active" href="{{ $dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard') }}" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 13 8-8 8 8v7H4z"/><path d="M9 20v-5h6v5"/></svg>Dashboard</a>
+                    <a class="admin-nav-link active" href="{{ $dashboardTitle === 'Admin' ? route('admin.dashboard') : ($dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard')) }}" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 13 8-8 8 8v7H4z"/><path d="M9 20v-5h6v5"/></svg>Dashboard</a>
                     <a class="admin-nav-link" href="{{ route('admin.inventaris') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM4 7l2-4h12l2 4M9 11h6M8 3v4M16 3v4"/></svg>Data Inventaris</a>
                     <a class="admin-nav-link" href="#lokasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Lokasi</a>
                     <a class="admin-nav-link" href="{{ route('admin.laporan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg>Laporan</a>
                     <a class="admin-nav-link" href="{{ route('admin.pengumuman') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 13v-2Z"/><path d="m7 14 2 6h4l-3-7M21 10v4"/></svg>Pengumuman</a>
-                    <a class="admin-nav-link" href="{{ route('admin.pengaturan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19 13 2-1-2-1-.4-1.1 1-1.8-2.7-2.7-1.8 1L12 6l-1-2-1 2-1.1.4-1.8-1L5.4 6.1l1 1.8L6 9l-2 1 2 1 .4 1.1-1 1.8 2.7 2.7 1.8-1L11 16l1 2 1-2 1.1-.4 1.8 1 2.7-2.7-1-1.8z"/></svg>Pengaturan</a>
+                    <a class="admin-nav-link" href="{{ route('admin.pengaturan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>Pengaturan</a>
                 </nav>
                 <div class="admin-sidebar-footer">
                     <div class="admin-profile"><span class="profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</span><span><strong>{{ $user->name }}</strong><small>{{ $dashboardTitle }}</small></span></div>

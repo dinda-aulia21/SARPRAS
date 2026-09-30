@@ -8,6 +8,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="admin-body">
+        @php($canManage = auth()->user()->role === 'admin')
+        @php($userRoleLabel = ['admin' => 'Admin Sarpras', 'kepala_yayasan' => 'Kepala Yayasan', 'kepala_sekolah' => 'Kepala Sekolah'][auth()->user()->role] ?? 'Pengguna')
         <div class="admin-layout">
             <aside class="admin-sidebar" id="admin-sidebar">
                 <a class="admin-brand" href="{{ auth()->user()->role === 'kepala_yayasan' ? route('kepala-yayasan.dashboard') : (auth()->user()->role === 'kepala_sekolah' ? route('kepala-sekolah.dashboard') : route('admin.dashboard')) }}"><span class="brand-mark" aria-hidden="true">R</span><span>Yayasan Raudhah<br>Syarifah</span></a>
@@ -16,14 +18,14 @@
                     <a class="admin-nav-link active" href="{{ route('admin.inventaris') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM4 7l2-4h12l2 4M9 11h6M8 3v4M16 3v4"/></svg>Data Inventaris</a>
                     <a class="admin-nav-link" href="{{ route('admin.laporan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg>Laporan</a>
                     <a class="admin-nav-link" href="{{ route('admin.pengumuman') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 13v-2Z"/><path d="m7 14 2 6h4l-3-7M21 10v4"/></svg>Pengumuman</a>
-                    <a class="admin-nav-link" href="{{ route('admin.pengaturan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19 13 2-1-2-1-.4-1.1 1-1.8-2.7-2.7-1.8 1L12 6l-1-2-1 2-1.1.4-1.8-1L5.4 6.1l1 1.8L6 9l-2 1 2 1 .4 1.1-1 1.8 2.7 2.7 1.8-1L11 16l1 2 1-2 1.1-.4 1.8 1 2.7-2.7-1-1.8z"/></svg>Pengaturan</a>
+                    <a class="admin-nav-link" href="{{ route('admin.pengaturan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>Pengaturan</a>
                 </nav>
-                <div class="admin-sidebar-footer"><div class="admin-profile"><span class="profile-avatar">AR</span><span><strong>Admin</strong><small>Administrator</small></span></div><form class="admin-logout-form" action="{{ route('logout') }}" method="post">@csrf<button class="admin-logout" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M19 3h2v18h-2"/></svg>Keluar</button></form></div>
+                <div class="admin-sidebar-footer"><div class="admin-profile"><span class="profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span><span><strong>{{ auth()->user()->name }}</strong><small>{{ $userRoleLabel }}</small></span></div><form class="admin-logout-form" action="{{ route('logout') }}" method="post">@csrf<button class="admin-logout" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M19 3h2v18h-2"/></svg>Keluar</button></form></div>
             </aside>
             <main class="admin-main">
-                <header class="admin-topbar"><button class="sidebar-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="false" aria-label="Buka navigasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="admin-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input type="search" placeholder="Cari inventaris, kategori, atau lokasi..." aria-label="Cari inventaris"></div><div class="topbar-actions"><button class="icon-button notification-button" type="button" aria-label="Notifikasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span></span></button><div class="date-label"><strong>Selasa, 23 September 2025</strong><small>10:34 WIB</small></div><button class="account-button" type="button"><span class="mini-avatar">A</span><span>Admin</span><span class="chevron">⌄</span></button></div></header>
+                <header class="admin-topbar"><button class="sidebar-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="false" aria-label="Buka navigasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="admin-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input type="search" placeholder="Cari inventaris, kategori, atau lokasi..." aria-label="Cari inventaris"></div><div class="topbar-actions"><button class="icon-button notification-button" type="button" aria-label="Notifikasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span></span></button><div class="date-label"><strong>{{ now()->translatedFormat('l, d F Y') }}</strong><small>{{ now()->format('H:i') }} WIB</small></div><button class="account-button" type="button"><span class="mini-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span><span>{{ auth()->user()->name }}</span><span class="chevron">⌄</span></button></div></header>
                 <div class="admin-content inventory-page-content">
-                    <div class="page-heading"><div><p class="welcome-eyebrow">Manajemen data</p><h1>Data Inventaris</h1><p>Kelola seluruh data sarana dan prasarana Yayasan Raudhah Syarifah.</p></div><button class="inventory-primary-button" type="button" data-open-inventory-modal><span aria-hidden="true">+</span> Tambah Inventaris</button></div>
+                    <div class="page-heading"><div><p class="welcome-eyebrow">Manajemen data</p><h1>Data Inventaris</h1><p>Kelola seluruh data sarana dan prasarana Yayasan Raudhah Syarifah.</p></div>@if ($canManage)<button class="inventory-primary-button" type="button" data-open-inventory-modal><span aria-hidden="true">+</span> Tambah Inventaris</button>@endif</div>
                     @if (session('success'))
                         <div class="inventory-alert" role="status">{{ session('success') }}</div>
                     @endif
@@ -53,19 +55,219 @@
                     inventoryModal?.setAttribute('aria-hidden', String(!isOpen));
                 };
 
-                openInventoryModal?.addEventListener('click', () => setInventoryModal(true));
+                const inventoryBaseUrl = @json(url('/admin/inventaris'));
+                const inventoryForm = document.querySelector('.inventory-form');
+                const inventoryFormTitle = inventoryModal?.querySelector('.inventory-modal-heading h2');
+                const inventoryFormSubmit = inventoryForm?.querySelector('[type="submit"]');
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'PUT';
+                methodInput.disabled = true;
+                inventoryForm?.append(methodInput);
+
+                const setInventoryForm = (inventory = null) => {
+                    inventoryForm?.reset();
+                    inventoryForm.action = inventory ? `${inventoryBaseUrl}/${inventory.id}` : inventoryBaseUrl;
+                    methodInput.disabled = !inventory;
+                    inventoryFormTitle.textContent = inventory ? 'Ubah Inventaris' : 'Tambah Inventaris';
+                    inventoryFormSubmit.textContent = inventory ? 'Simpan Perubahan' : 'Simpan Inventaris';
+
+                    if (inventory) {
+                        inventoryForm.elements.namedItem('name').value = inventory.name;
+                        inventoryForm.elements.namedItem('category').value = inventory.category;
+                        inventoryForm.elements.namedItem('location').value = inventory.location;
+                        inventoryForm.elements.namedItem('quantity').value = inventory.quantity;
+                        inventoryForm.elements.namedItem('condition').value = inventory.condition;
+                    }
+                };
+
+                openInventoryModal?.addEventListener('click', () => {
+                    setInventoryForm();
+                    setInventoryModal(true);
+                });
                 closeInventoryModal.forEach((button) => button.addEventListener('click', () => setInventoryModal(false)));
                 const savedInventories = @json($inventories);
+                const canManageInventory = @json($canManage);
+                const inventoryTotals = savedInventories.reduce((totals, inventory) => {
+                    const quantity = Number(inventory.quantity) || 0;
+                    totals.total += quantity;
+                    if (inventory.condition === 'Baik') totals.good += quantity;
+                    if (inventory.condition === 'Rusak Ringan') totals.minor += quantity;
+                    if (inventory.condition === 'Rusak Berat') totals.major += quantity;
+                    return totals;
+                }, { total: 0, good: 0, minor: 0, major: 0 });
+                document.querySelectorAll('.inventory-summary strong').forEach((value, index) => {
+                    value.textContent = [inventoryTotals.total, inventoryTotals.good, inventoryTotals.minor, inventoryTotals.major][index] ?? 0;
+                });
+                const inventoryCountLabel = document.querySelector('.inventory-toolbar h2 span');
+                if (inventoryCountLabel) inventoryCountLabel.textContent = `${savedInventories.length} data`;
                 const inventoryBody = document.querySelector('.full-inventory-table tbody');
+                document.querySelector('.full-inventory-table thead th:first-child')?.remove();
                 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' })[character]);
-                savedInventories.reverse().forEach((inventory, index) => {
+                if (inventoryBody) inventoryBody.innerHTML = '';
+                savedInventories.forEach((inventory, index) => {
                     const row = document.createElement('tr');
                     const conditionClass = inventory.condition === 'Baik' ? 'status-good' : (inventory.condition === 'Rusak Ringan' ? 'status-minor' : 'status-major');
-                    row.innerHTML = `<td><input type="checkbox" aria-label="Pilih ${escapeHtml(inventory.name)}"></td><td>${String(index + 1).padStart(2, '0')}</td><td><strong>${escapeHtml(inventory.name)}</strong><small>INV-${inventory.id}</small></td><td>${escapeHtml(inventory.category)}</td><td>${escapeHtml(inventory.location)}</td><td>${inventory.quantity} unit</td><td><span class="status ${conditionClass}">${escapeHtml(inventory.condition)}</span></td><td>${new Date(inventory.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td><td><button class="row-action" type="button" aria-label="Opsi ${escapeHtml(inventory.name)}">•••</button></td>`;
-                    inventoryBody?.prepend(row);
+                    const safeId = escapeHtml(inventory.id);
+                    row.innerHTML = `<td>${String(index + 1).padStart(2, '0')}</td><td><strong>${escapeHtml(inventory.name)}</strong><small>INV-${safeId}</small></td><td>${escapeHtml(inventory.category)}</td><td>${escapeHtml(inventory.location)}</td><td>${escapeHtml(inventory.quantity)} unit</td><td><span class="status ${conditionClass}">${escapeHtml(inventory.condition)}</span></td><td>${new Date(inventory.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td><td><div class="inventory-row-actions"><button class="row-action" type="button" data-toggle-inventory-actions aria-expanded="false" aria-label="Aksi ${escapeHtml(inventory.name)}">•••</button><div class="inventory-action-menu" hidden><button type="button" data-edit-inventory="${safeId}" data-name="${escapeHtml(inventory.name)}" data-category="${escapeHtml(inventory.category)}" data-location="${escapeHtml(inventory.location)}" data-quantity="${escapeHtml(inventory.quantity)}" data-condition="${escapeHtml(inventory.condition)}">Ubah</button><button type="button" class="inventory-delete-action" data-delete-inventory="${safeId}">Hapus</button></div></div></td>`;
+                    const actionMenu = row.querySelector('.inventory-action-menu');
+                    const detailButton = document.createElement('button');
+                    detailButton.type = 'button';
+                    detailButton.dataset.viewInventory = String(inventory.id);
+                    detailButton.textContent = 'Detail';
+                    actionMenu.prepend(detailButton);
+                    if (!canManageInventory) {
+                        actionMenu.querySelector('[data-edit-inventory]').remove();
+                        actionMenu.querySelector('[data-delete-inventory]').remove();
+                    }
+                    inventoryBody?.append(row);
                 });
+                if (inventoryBody && savedInventories.length === 0) {
+                    inventoryBody.innerHTML = '<tr><td class="inventory-empty-row" colspan="8">Belum ada data inventaris.</td></tr>';
+                }
+
+                const inventoryDetailDialog = document.createElement('dialog');
+                inventoryDetailDialog.className = 'inventory-detail-dialog';
+                inventoryDetailDialog.innerHTML = '<form method="dialog"><div class="inventory-modal-heading"><h2>Detail Inventaris</h2><button class="inventory-modal-close" type="submit" aria-label="Tutup">&times;</button></div><dl><div><dt>Kode Barang</dt><dd data-detail-code></dd></div><div><dt>Nama Barang</dt><dd data-detail-name></dd></div><div><dt>Kategori</dt><dd data-detail-category></dd></div><div><dt>Lokasi</dt><dd data-detail-location></dd></div><div><dt>Jumlah</dt><dd data-detail-quantity></dd></div><div><dt>Kondisi</dt><dd data-detail-condition></dd></div></dl></form>';
+                document.body.append(inventoryDetailDialog);
+
+                const inventoryRows = Array.from(inventoryBody?.querySelectorAll('tr') ?? []).filter((row) => !row.querySelector('.inventory-empty-row'));
+                const inventoryFooter = document.querySelector('.inventory-footer');
+                const inventoryRange = inventoryFooter?.querySelector('span');
+                const paginationNav = inventoryFooter?.querySelector('div');
+                const rowsPerPage = 10;
+                const pageCount = Math.max(1, Math.ceil(inventoryRows.length / rowsPerPage));
+                let currentPage = 1;
+
+                const renderInventoryPage = (page) => {
+                    currentPage = Math.max(1, Math.min(page, pageCount));
+                    const firstIndex = (currentPage - 1) * rowsPerPage;
+                    inventoryRows.forEach((row, index) => {
+                        row.hidden = index < firstIndex || index >= firstIndex + rowsPerPage;
+                    });
+
+                    if (inventoryRange) {
+                        const firstItem = inventoryRows.length ? firstIndex + 1 : 0;
+                        const lastItem = Math.min(firstIndex + rowsPerPage, inventoryRows.length);
+                        inventoryRange.innerHTML = `Menampilkan <strong>${firstItem}-${lastItem}</strong> dari <strong>${inventoryRows.length}</strong> data`;
+                    }
+
+                    if (!paginationNav) return;
+                    paginationNav.innerHTML = '';
+
+                    const addPageButton = (label, page, options = {}) => {
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.textContent = label;
+                        button.disabled = Boolean(options.disabled);
+                        if (options.current) {
+                            button.className = 'current-page';
+                            button.setAttribute('aria-current', 'page');
+                        }
+                        button.addEventListener('click', () => renderInventoryPage(page));
+                        paginationNav.append(button);
+                    };
+
+                    addPageButton('←', currentPage - 1, { disabled: currentPage === 1 });
+                    const firstVisiblePage = Math.max(1, Math.min(currentPage - 1, pageCount - 2));
+                    const lastVisiblePage = Math.min(pageCount, firstVisiblePage + 2);
+
+                    if (firstVisiblePage > 1) {
+                        addPageButton('1', 1);
+                        if (firstVisiblePage > 2) paginationNav.append('…');
+                    }
+
+                    for (let page = firstVisiblePage; page <= lastVisiblePage; page += 1) {
+                        addPageButton(String(page), page, { current: page === currentPage });
+                    }
+
+                    if (lastVisiblePage < pageCount) {
+                        if (lastVisiblePage < pageCount - 1) paginationNav.append('…');
+                        addPageButton(String(pageCount), pageCount);
+                    }
+
+                    addPageButton('→', currentPage + 1, { disabled: currentPage === pageCount });
+                };
+
+                renderInventoryPage(1);
+
+                const closeInventoryMenus = () => {
+                    document.querySelectorAll('.inventory-action-menu').forEach((menu) => {
+                        menu.hidden = true;
+                        menu.parentElement?.querySelector('[data-toggle-inventory-actions]')?.setAttribute('aria-expanded', 'false');
+                    });
+                };
+
+                inventoryBody?.addEventListener('click', (event) => {
+                    const toggleButton = event.target.closest('[data-toggle-inventory-actions]');
+                    if (toggleButton) {
+                        const menu = toggleButton.nextElementSibling;
+                        const shouldOpen = menu.hidden;
+                        closeInventoryMenus();
+                        if (shouldOpen) {
+                            menu.hidden = false;
+                            toggleButton.setAttribute('aria-expanded', 'true');
+                            const buttonRect = toggleButton.getBoundingClientRect();
+                            const menuWidth = menu.offsetWidth;
+                            const menuHeight = menu.offsetHeight;
+                            menu.style.left = `${Math.max(8, Math.min(buttonRect.right - menuWidth, window.innerWidth - menuWidth - 8))}px`;
+                            menu.style.top = `${buttonRect.bottom + menuHeight + 8 < window.innerHeight ? buttonRect.bottom + 4 : Math.max(8, buttonRect.top - menuHeight - 4)}px`;
+                        }
+                        return;
+                    }
+
+                    const editButton = event.target.closest('[data-edit-inventory]');
+                    const detailButton = event.target.closest('[data-view-inventory]');
+                    if (detailButton) {
+                        const inventory = savedInventories.find((item) => String(item.id) === detailButton.dataset.viewInventory);
+                        if (inventory) {
+                            inventoryDetailDialog.querySelector('[data-detail-code]').textContent = `INV-${inventory.id}`;
+                            inventoryDetailDialog.querySelector('[data-detail-name]').textContent = inventory.name;
+                            inventoryDetailDialog.querySelector('[data-detail-category]').textContent = inventory.category;
+                            inventoryDetailDialog.querySelector('[data-detail-location]').textContent = inventory.location;
+                            inventoryDetailDialog.querySelector('[data-detail-quantity]').textContent = `${inventory.quantity} unit`;
+                            inventoryDetailDialog.querySelector('[data-detail-condition]').textContent = inventory.condition;
+                            inventoryDetailDialog.showModal();
+                        }
+                        closeInventoryMenus();
+                        return;
+                    }
+
+                    if (editButton) {
+                        setInventoryForm({
+                            id: editButton.dataset.editInventory,
+                            name: editButton.dataset.name,
+                            category: editButton.dataset.category,
+                            location: editButton.dataset.location,
+                            quantity: editButton.dataset.quantity,
+                            condition: editButton.dataset.condition,
+                        });
+                        closeInventoryMenus();
+                        setInventoryModal(true);
+                        return;
+                    }
+
+                    const deleteButton = event.target.closest('[data-delete-inventory]');
+                    if (deleteButton && window.confirm('Hapus data inventaris ini? Tindakan ini tidak dapat dibatalkan.')) {
+                        const deleteForm = document.createElement('form');
+                        deleteForm.method = 'POST';
+                        deleteForm.action = `${inventoryBaseUrl}/${deleteButton.dataset.deleteInventory}`;
+                        deleteForm.innerHTML = `<input type="hidden" name="_token" value="${@json(csrf_token())}"><input type="hidden" name="_method" value="DELETE">`;
+                        document.body.append(deleteForm);
+                        deleteForm.submit();
+                    }
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!event.target.closest('.inventory-row-actions')) closeInventoryMenus();
+                });
+                window.addEventListener('scroll', closeInventoryMenus, true);
                 document.addEventListener('keydown', (event) => {
-                    if (event.key === 'Escape') setInventoryModal(false);
+                    if (event.key === 'Escape') {
+                        setInventoryModal(false);
+                        closeInventoryMenus();
+                    }
                 });
             </script>
     </body>

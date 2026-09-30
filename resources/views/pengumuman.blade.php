@@ -8,6 +8,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="admin-body">
+        @php($canManage = auth()->user()->role === 'admin')
+        @php($userRoleLabel = ['admin' => 'Admin Sarpras', 'kepala_yayasan' => 'Kepala Yayasan', 'kepala_sekolah' => 'Kepala Sekolah'][auth()->user()->role] ?? 'Pengguna')
         <div class="admin-layout">
             <aside class="admin-sidebar" id="admin-sidebar">
                 <a class="admin-brand" href="{{ auth()->user()->role === 'kepala_yayasan' ? route('kepala-yayasan.dashboard') : (auth()->user()->role === 'kepala_sekolah' ? route('kepala-sekolah.dashboard') : route('admin.dashboard')) }}"><span class="brand-mark" aria-hidden="true">R</span><span>Yayasan Raudhah<br>Syarifah</span></a>
@@ -16,10 +18,10 @@
                     <a class="admin-nav-link" href="{{ route('admin.inventaris') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM4 7l2-4h12l2 4M9 11h6M8 3v4M16 3v4"/></svg>Data Inventaris</a>
                     <a class="admin-nav-link" href="{{ route('admin.laporan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg>Laporan</a>
                     <a class="admin-nav-link active" href="{{ route('admin.pengumuman') }}" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 13v-2Z"/><path d="m7 14 2 6h4l-3-7M21 10v4"/></svg>Pengumuman</a>
-                    <a class="admin-nav-link" href="{{ route('admin.pengaturan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19 13 2-1-2-1-.4-1.1 1-1.8-2.7-2.7-1.8 1L12 6l-1-2-1 2-1.1.4-1.8-1L5.4 6.1l1 1.8L6 9l-2 1 2 1 .4 1.1-1 1.8 2.7 2.7 1.8-1L11 16l1 2 1-2 1.1-.4 1.8 1 2.7-2.7-1-1.8z"/></svg>Pengaturan</a>
+                    <a class="admin-nav-link" href="{{ route('admin.pengaturan') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>Pengaturan</a>
                 </nav>
                 <div class="admin-sidebar-footer">
-                    <div class="admin-profile"><span class="profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span><span><strong>{{ auth()->user()->name }}</strong><small>Administrator</small></span></div>
+                    <div class="admin-profile"><span class="profile-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span><span><strong>{{ auth()->user()->name }}</strong><small>{{ $userRoleLabel }}</small></span></div>
                     <form class="admin-logout-form" action="{{ route('logout') }}" method="post">@csrf<button class="admin-logout" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M19 3h2v18h-2"/></svg>Keluar</button></form>
                 </div>
             </aside>
@@ -30,7 +32,7 @@
                     <div class="topbar-actions"><button class="icon-button notification-button" type="button" aria-label="Notifikasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span></span></button><div class="date-label"><strong>{{ now()->translatedFormat('l, d F Y') }}</strong><small>{{ now()->format('H:i') }} WIB</small></div><button class="account-button" type="button"><span class="mini-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span><span>{{ auth()->user()->name }}</span><span class="chevron">⌄</span></button></div>
                 </header>
                 <div class="admin-content inventory-page-content announcements-page-content">
-                    <div class="page-heading"><div><p class="welcome-eyebrow">Pusat informasi</p><h1>Pengumuman</h1><p>Kelola informasi dan pengumuman terkait sarana dan prasarana yayasan.</p></div><button class="announcement-add-button" type="button" data-open-announcement><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Tambah Pengumuman</button></div>
+                    <div class="page-heading"><div><p class="welcome-eyebrow">Pusat informasi</p><h1>Pengumuman</h1><p>Kelola informasi dan pengumuman terkait sarana dan prasarana yayasan.</p></div>@if ($canManage)<button class="announcement-add-button" type="button" data-open-announcement><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Tambah Pengumuman</button>@endif</div>
                     @if (session('success'))<div class="inventory-alert" role="status">{{ session('success') }}</div>@endif
                     @if ($errors->any())<div class="inventory-alert inventory-alert-error" role="alert">{{ $errors->first() }}</div>@endif
                     <section class="announcement-table-panel dashboard-panel">
@@ -55,8 +57,10 @@
                                     <td><span class="announcement-status {{ $announcement->status === 'Aktif' ? 'is-active' : 'is-inactive' }}">{{ $announcement->status }}</span></td>
                                     <td><div class="announcement-row-actions">
                                         <button class="announcement-icon-button view-announcement-button" type="button" data-view-announcement data-title="{{ $announcement->title }}" data-body="{{ $announcement->body }}" data-date="{{ $announcement->publish_date->translatedFormat('d F Y') }}" data-status="{{ $announcement->status }}" aria-label="Lihat {{ $announcement->title }}" title="Lihat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
-                                        <button class="announcement-icon-button edit-announcement-button" type="button" data-edit-announcement data-id="{{ $announcement->id }}" data-title="{{ $announcement->title }}" data-body="{{ $announcement->body }}" data-date="{{ $announcement->publish_date->format('Y-m-d') }}" data-status="{{ $announcement->status }}" aria-label="Edit {{ $announcement->title }}" title="Edit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16z"/></svg></button>
-                                        <form action="{{ route('admin.pengumuman.destroy', $announcement) }}" method="post" onsubmit="return confirm('Hapus pengumuman ini?')">@csrf @method('DELETE')<button class="announcement-icon-button delete-announcement-button" type="submit" aria-label="Hapus {{ $announcement->title }}" title="Hapus"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3"/></svg></button></form>
+                                        @if ($canManage)
+                                            <button class="announcement-icon-button edit-announcement-button" type="button" data-edit-announcement data-id="{{ $announcement->id }}" data-title="{{ $announcement->title }}" data-body="{{ $announcement->body }}" data-date="{{ $announcement->publish_date->format('Y-m-d') }}" data-status="{{ $announcement->status }}" aria-label="Edit {{ $announcement->title }}" title="Edit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16z"/></svg></button>
+                                            <form action="{{ route('admin.pengumuman.destroy', $announcement) }}" method="post" onsubmit="return confirm('Hapus pengumuman ini?')">@csrf @method('DELETE')<button class="announcement-icon-button delete-announcement-button" type="submit" aria-label="Hapus {{ $announcement->title }}" title="Hapus"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3"/></svg></button></form>
+                                        @endif
                                     </div></td>
                                 </tr>
                             @empty
