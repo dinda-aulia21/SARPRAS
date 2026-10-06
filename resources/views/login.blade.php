@@ -39,7 +39,9 @@
                         <div class="input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
                             <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Password" required>
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2"/></svg>
+                            <button class="password-visibility-toggle" type="button" data-password-visibility="password" aria-label="Tampilkan password" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2"/><path class="password-eye-slash" d="m4 4 16 16" hidden/></svg>
+                            </button>
                         </div>
                         <button class="login-submit" type="submit">Login <span aria-hidden="true">→</span></button>
                     </form>

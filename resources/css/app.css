@@ -59,9 +59,12 @@ footer span { color: var(--green); padding: 0 6px; }
 .login-subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
 .login-error { background: #fff0f0; border: 1px solid #ffd4d4; border-radius: 6px; color: #c44848; font-size: 12px; margin: -5px 0 15px; padding: 9px 10px; }
 .login-form label { color: #56716c; display: block; font-size: 13px; font-weight: 700; margin-bottom: 7px; }
-.input-wrap { align-items: center; border: 1px solid #dbeae5; border-radius: 7px; display: flex; gap: 8px; margin-bottom: 15px; padding: 0 11px; }
+.input-wrap { align-items: center; background: var(--mint); border: 1px solid #dbeae5; border-radius: 7px; display: flex; gap: 8px; margin-bottom: 15px; padding: 0 11px; }
 .input-wrap svg { fill: none; height: 14px; stroke: #78938d; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; width: 14px; }
-.input-wrap input { border: 0; color: var(--ink); font: inherit; font-size: 13px; min-height: 42px; outline: 0; width: 100%; }
+.input-wrap input { background: transparent; border: 0; color: var(--ink); font: inherit; font-size: 13px; min-height: 42px; outline: 0; width: 100%; }
+.input-wrap input:-webkit-autofill, .input-wrap input:-webkit-autofill:hover, .input-wrap input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 1000px var(--mint) inset; -webkit-text-fill-color: var(--ink); transition: background-color 9999s ease-out; }
+.input-wrap .password-visibility-toggle { align-items: center; background: #fff; border: 0; border-radius: 0 6px 6px 0; color: #78938d; cursor: pointer; display: flex; flex: 0 0 34px; height: 42px; justify-content: center; margin-right: -11px; padding: 0; }
+.input-wrap .password-visibility-toggle svg { height: 15px; width: 15px; }
 .input-wrap:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(0,143,104,.1); }
 .login-submit { background: var(--green-dark); border: 0; border-radius: 7px; color: #fff; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; margin-top: 5px; min-height: 43px; width: 100%; }
 .login-submit:hover { background: var(--green); }
