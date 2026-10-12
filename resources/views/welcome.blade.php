@@ -11,7 +11,7 @@
         <main class="page-shell">
             <nav class="site-nav" aria-label="Navigasi utama">
                 <a class="brand" href="{{ url('/') }}" aria-label="Yayasan Raudhah Syarifah">
-                    <span class="brand-mark" aria-hidden="true">R</span>
+                    <img class="brand-mark" src="{{ asset('images/logo-yayasan.png') }}" alt="">
                     <span>Yayasan Raudhah Syarifah</span>
                 </a>
                 <div class="nav-links">
@@ -58,7 +58,33 @@
                 </div>
             </section>
 
-            <footer id="kontak">Yayasan Raudhah Syarifah <span>•</span> Sistem Informasi Sarana dan Prasarana</footer>
+            <section class="foundation-contact" id="kontak" aria-labelledby="foundation-contact-title">
+                <div class="foundation-contact-inner">
+                    <div class="foundation-contact-heading">
+                        <p class="eyebrow">Yayasan Raudhah Syarifah</p>
+                        <h2 id="foundation-contact-title">Informasi Yayasan</h2>
+                        <p>Lengkapi bagian ini dengan alamat, kontak, dan informasi resmi yayasan.</p>
+                    </div>
+                    <div class="foundation-contact-grid">
+                        <div class="foundation-contact-item">
+                            <h3>Alamat</h3>
+                            <p>Tulis alamat lengkap yayasan di sini</p>
+                        </div>
+                        <div class="foundation-contact-item">
+                            <h3>Kontak</h3>
+                            <p><strong>Telepon / WhatsApp</strong><br>Tulis nomor kontak yayasan di sini</p>
+                            <p><strong>Email</strong><br>Tulis alamat email yayasan di sini</p>
+                        </div>
+                        <div class="foundation-contact-item">
+                            <h3>Media Sosial</h3>
+                            <p><strong>Instagram</strong><br>Tulis nama akun Instagram di sini</p>
+                            <p><strong>Facebook</strong><br>Tulis nama halaman Facebook di sini</p>
+                            <p><strong>YouTube</strong><br>Tulis nama kanal YouTube di sini</p>
+                        </div>
+                    </div>
+                </div>
+                <footer class="site-footer">Yayasan Raudhah Syarifah <span>•</span> Sistem Informasi Sarana dan Prasarana</footer>
+            </section>
         </main>
     </body>
 </html>

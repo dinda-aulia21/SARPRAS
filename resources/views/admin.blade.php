@@ -11,7 +11,7 @@
         <div class="admin-layout">
             <aside class="admin-sidebar" id="admin-sidebar">
                 <a class="admin-brand" href="{{ url('/admin') }}">
-                    <span class="brand-mark" aria-hidden="true">R</span>
+                    <img class="brand-mark" src="{{ asset('images/logo-yayasan.png') }}" alt="">
                     <span>Yayasan Raudhah<br>Syarifah</span>
                 </a>
                 <nav class="admin-nav" aria-label="Navigasi admin">
@@ -47,6 +47,27 @@
                         <article class="dashboard-panel category-panel" id="laporan"><div class="panel-heading"><div><p class="panel-kicker">Ringkasan</p><h2>Rekap Inventaris per Kategori</h2></div><button class="panel-menu" type="button" aria-label="Menu rekap">•••</button></div><div class="category-content"><div class="donut-chart"><div><strong>128</strong><small>Total inventaris</small></div></div><ul class="category-list"><li><span><i class="dot dot-green"></i>Furnitur</span><strong>45</strong></li><li><span><i class="dot dot-blue"></i>Elektronik</span><strong>35</strong></li><li><span><i class="dot dot-yellow"></i>Sarana Pembelajaran</span><strong>18</strong></li><li><span><i class="dot dot-orange"></i>Kesehatan</span><strong>18</strong></li><li><span><i class="dot dot-purple"></i>Lainnya</span><strong>12</strong></li></ul></div></article>
                         <article class="dashboard-panel inventory-panel" id="inventaris"><div class="panel-heading"><div><p class="panel-kicker">Data terbaru</p><h2>Inventaris Terbaru</h2></div><a href="#inventaris">Lihat Semua <span aria-hidden="true">→</span></a></div><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama Barang</th><th>Kategori</th><th>Lokasi</th><th>Kondisi</th></tr></thead><tbody><tr><td>01</td><td>Proyektor</td><td>Elektronik</td><td>Ruang Kelas 2</td><td><span class="status status-good">Baik</span></td></tr><tr><td>02</td><td>Meja Guru</td><td>Furnitur</td><td>Ruang Guru</td><td><span class="status status-good">Baik</span></td></tr><tr><td>03</td><td>Laptop</td><td>Elektronik</td><td>Ruang TU</td><td><span class="status status-good">Baik</span></td></tr><tr><td>04</td><td>AC</td><td>Elektronik</td><td>Ruang Kelas 1</td><td><span class="status status-minor">Rusak Ringan</span></td></tr><tr><td>05</td><td>Kursi Plastik</td><td>Furnitur</td><td>Lapangan</td><td><span class="status status-good">Baik</span></td></tr></tbody></table></div></article>
                         <article class="dashboard-panel announcement-panel" id="pengumuman"><div class="panel-heading"><div><p class="panel-kicker">Pusat informasi</p><h2>Pengumuman</h2></div><a href="{{ route('admin.pengumuman') }}">Lihat Semua <span aria-hidden="true">→</span></a></div><ul class="announcement-list"><li><span class="announcement-icon">▣</span><div><strong>Pemeliharaan Gedung</strong><small>Admin • 20 Sep 2025</small><p>Akan dilakukan pemeliharaan ruang kelas pada 3 dan 4 September.</p></div></li><li><span class="announcement-icon">↻</span><div><strong>Pengadaan Inventaris Baru</strong><small>Admin • 17 Sep 2025</small><p>Tersedia pengajuan baru untuk inventaris sarana.</p></div></li><li><span class="announcement-icon">✓</span><div><strong>Rapat Koordinasi</strong><small>Admin • 15 Sep 2025</small><p>Rapat koordinasi inventaris akan dilaksanakan pekan depan.</p></div></li></ul></article>
+                    </section>
+                    <section class="foundation-info" aria-labelledby="foundation-info-title">
+                        <div class="foundation-info-heading">
+                            <p class="panel-kicker">Profil yayasan</p>
+                            <h2 id="foundation-info-title">Yayasan Raudhah Syarifah</h2>
+                            <p>Informasi mengenai yayasan dan kanal komunikasi.</p>
+                        </div>
+                        <div class="foundation-info-items">
+                            <article>
+                                <span class="foundation-info-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+                                <div><h3>Alamat</h3><p>Bungursari</p><small>Alamat lengkap belum dicantumkan</small></div>
+                            </article>
+                            <article>
+                                <span class="foundation-info-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg></span>
+                                <div><h3>Kontak dan Media Sosial</h3><p>Informasi kontak resmi</p><small>Nomor telepon dan akun media sosial belum dicantumkan</small></div>
+                            </article>
+                            <article>
+                                <span class="foundation-info-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 20V8l6-4 6 4v12M9 20v-6h6v6M9 9h.01M15 9h.01"/></svg></span>
+                                <div><h3>Tentang Yayasan</h3><p>Yayasan Raudhah Syarifah, Bungursari</p><small>Mendukung penyelenggaraan pendidikan dan pengelolaan sarana prasarana.</small></div>
+                            </article>
+                        </div>
                     </section>
                 </div>
             </main>

@@ -20,7 +20,7 @@
             <section class="login-panel" aria-labelledby="login-title">
                 <div class="login-box">
                     <div class="login-logo">
-                        <span class="brand-mark" aria-hidden="true">R</span>
+                        <img class="brand-mark" src="{{ asset('images/logo-yayasan.png') }}" alt="">
                         <span>Yayasan Raudhah Syarifah</span>
                     </div>
                     <h2 id="login-title">Login</h2>

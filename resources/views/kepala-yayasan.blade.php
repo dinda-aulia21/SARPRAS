@@ -10,7 +10,7 @@
     <body class="admin-body">
         <div class="admin-layout">
             <aside class="admin-sidebar" id="admin-sidebar">
-                <a class="admin-brand" href="{{ $dashboardTitle === 'Admin' ? route('admin.dashboard') : ($dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard')) }}"><span class="brand-mark" aria-hidden="true">R</span><span>Yayasan Raudhah<br>Syarifah</span></a>
+                <a class="admin-brand" href="{{ $dashboardTitle === 'Admin' ? route('admin.dashboard') : ($dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard')) }}"><img class="brand-mark" src="{{ asset('images/logo-yayasan.png') }}" alt=""><span>Yayasan Raudhah<br>Syarifah</span></a>
                 <nav class="admin-nav" aria-label="Navigasi admin">
                     <a class="admin-nav-link active" href="{{ $dashboardTitle === 'Admin' ? route('admin.dashboard') : ($dashboardTitle === 'Kepala Sekolah' ? route('kepala-sekolah.dashboard') : route('kepala-yayasan.dashboard')) }}" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 13 8-8 8 8v7H4z"/><path d="M9 20v-5h6v5"/></svg>Dashboard</a>
                     <a class="admin-nav-link" href="{{ route('admin.inventaris') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM4 7l2-4h12l2 4M9 11h6M8 3v4M16 3v4"/></svg>Data Inventaris</a>
