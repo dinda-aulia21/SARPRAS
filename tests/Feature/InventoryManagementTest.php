@@ -33,7 +33,7 @@ class InventoryManagementTest extends TestCase
             ->assertRedirect(route('admin.inventaris'))
             ->assertSessionHas('success', 'Data inventaris berhasil diperbarui.');
 
-        $this->assertDatabaseHas('inventories', [
+        $this->assertDatabaseHas('data_inventaris', [
             'id' => $inventory->id,
             'name' => 'Meja baru',
             'location' => 'Ruang Kelas 1',
@@ -58,6 +58,6 @@ class InventoryManagementTest extends TestCase
             ->assertRedirect(route('admin.inventaris'))
             ->assertSessionHas('success', 'Data inventaris berhasil dihapus.');
 
-        $this->assertDatabaseMissing('inventories', ['id' => $inventory->id]);
+        $this->assertDatabaseMissing('data_inventaris', ['id' => $inventory->id]);
     }
 }

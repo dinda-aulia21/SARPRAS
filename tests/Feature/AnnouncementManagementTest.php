@@ -27,7 +27,7 @@ class AnnouncementManagementTest extends TestCase
             'status' => 'Aktif',
         ])->assertRedirect(route('admin.pengumuman'));
 
-        $this->assertDatabaseHas('announcements', [
+        $this->assertDatabaseHas('pengumuman', [
             'judul' => 'Jadwal Pemeliharaan',
             'konten' => 'Pemeliharaan ruang kelas dilakukan hari Jumat.',
             'tipe' => 'umum',
@@ -44,7 +44,7 @@ class AnnouncementManagementTest extends TestCase
             'status' => 'Tidak Aktif',
         ])->assertRedirect(route('admin.pengumuman'));
 
-        $this->assertDatabaseHas('announcements', [
+        $this->assertDatabaseHas('pengumuman', [
             'id' => $announcement->id,
             'judul' => 'Jadwal Pemeliharaan Gedung',
             'status' => 'arsip',
@@ -53,6 +53,6 @@ class AnnouncementManagementTest extends TestCase
         $this->delete(route('admin.pengumuman.destroy', $announcement))
             ->assertRedirect(route('admin.pengumuman'));
 
-        $this->assertDatabaseMissing('announcements', ['id' => $announcement->id]);
+        $this->assertDatabaseMissing('pengumuman', ['id' => $announcement->id]);
     }
 }

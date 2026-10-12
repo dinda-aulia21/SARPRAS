@@ -200,7 +200,7 @@ Route::delete('/admin/pengumuman/{announcement}', function (Request $request, An
 Route::put('/admin/pengaturan/profil', function (Request $request) {
     $validated = $request->validate([
         'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($request->user()->id)],
+        'email' => ['required', 'email', 'max:255', Rule::unique('pengguna', 'email')->ignore($request->user()->id)],
     ]);
 
     $request->user()->update($validated);

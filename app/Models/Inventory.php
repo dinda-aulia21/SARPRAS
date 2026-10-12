@@ -9,6 +9,8 @@ class Inventory extends Model
 {
     use HasFactory;
 
+    protected $table = 'data_inventaris';
+
     protected $fillable = [
         'name',
         'category',
@@ -16,4 +18,5 @@ class Inventory extends Model
         'quantity',
         'condition',
     ];
+
 }
