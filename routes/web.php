@@ -27,12 +27,8 @@ Route::get('/', function () {
 });
 
 $scopeToUserUnit = function ($query, User $user) {
-    if ($user->role !== 'kepala_sekolah') {
+    if ($user->role !== 'kepala_sekolah' || $user->unit_pendidikan_id === null) {
         return $query;
-    }
-
-    if ($user->unit_pendidikan_id === null) {
-        return $query->whereRaw('1 = 0');
     }
 
     return $query->whereHas('lokasiInventaris', fn ($locations) => $locations
@@ -146,11 +142,8 @@ Route::get('/admin/inventaris', function (Request $request) use ($scopeToUserUni
         'inventories' => $inventories,
         'categories' => KategoriInventaris::orderBy('nama_kategori')->get(),
         'locations' => LokasiInventaris::with('unitPendidikan')
-            ->when($user->role === 'kepala_sekolah', fn ($query) => $query->where('unit_pendidikan_id', $user->unit_pendidikan_id))
+            ->when($user->role === 'kepala_sekolah' && $user->unit_pendidikan_id !== null, fn ($query) => $query->where('unit_pendidikan_id', $user->unit_pendidikan_id))
             ->orderBy('nama_lokasi')->get(),
-        'units' => UnitPendidikan::orderBy('nama_unit')->get(),
-        'schoolHeads' => User::whereHas('hakAkses', fn ($query) => $query->where('nama_hak_akses', 'Kepala Sekolah'))
-            ->with(['unitPendidikan', 'hakAkses'])->orderBy('nama_lengkap')->get(),
     ]);
 })->middleware('auth')->name('admin.inventaris');
 
@@ -183,7 +176,7 @@ Route::get('/admin/laporan', function (Request $request) use ($scopeToUserUnit) 
         'years' => $allInventories->pluck('tahun_perolehan')->filter()->unique()->sortDesc()->values(),
         'categories' => KategoriInventaris::orderBy('nama_kategori')->get(),
         'locations' => LokasiInventaris::with('unitPendidikan')
-            ->when($user->role === 'kepala_sekolah', fn ($query) => $query->where('unit_pendidikan_id', $user->unit_pendidikan_id))
+            ->when($user->role === 'kepala_sekolah' && $user->unit_pendidikan_id !== null, fn ($query) => $query->where('unit_pendidikan_id', $user->unit_pendidikan_id))
             ->orderBy('nama_lokasi')->get(),
         'type' => $type,
     ]);

@@ -33,46 +33,6 @@
                         <div class="inventory-alert inventory-alert-error" role="alert">Periksa kembali data inventaris yang diisi.</div>
                     @endif
                     <section class="inventory-summary" aria-label="Ringkasan data inventaris"><article><span class="summary-icon summary-green">▣</span><div><small>Total Barang</small><strong>0</strong></div></article><article><span class="summary-icon summary-blue">✓</span><div><small>Kondisi Baik</small><strong>0</strong></div></article><article><span class="summary-icon summary-yellow">!</span><div><small>Rusak Ringan</small><strong>0</strong></div></article><article><span class="summary-icon summary-red">!</span><div><small>Rusak Berat</small><strong>0</strong></div></article></section>
-                    @if ($canManage)
-                        <section class="dashboard-panel" aria-labelledby="school-head-unit-title">
-                            <div class="panel-heading"><div><p class="panel-kicker">Akses inventaris</p><h2 id="school-head-unit-title">Unit Kepala Sekolah</h2></div></div>
-                            <div class="full-inventory-table school-head-units-table"><table><thead><tr><th>Nama</th><th>Email</th><th>Atur Unit Pendidikan</th><th>Status Unit</th></tr></thead><tbody>
-                                @foreach ($schoolHeads as $schoolHead)
-                                    <tr><td>{{ $schoolHead->nama_lengkap }}</td><td>{{ $schoolHead->email }}</td><td>
-                                        <form action="{{ route('admin.pengguna.unit.update', $schoolHead) }}" method="post">@csrf @method('PUT')
-                                            <select name="unit_pendidikan_id" required aria-label="Unit pendidikan {{ $schoolHead->nama_lengkap }}">
-                                                <option value="">Pilih unit</option>
-                                                @foreach ($units as $unit)<option value="{{ $unit->id }}" @selected($schoolHead->unit_pendidikan_id === $unit->id)>{{ $unit->nama_unit }}</option>@endforeach
-                                            </select>
-                                            <button type="submit">Simpan Unit</button>
-                                        </form>
-                                    </td><td>{{ $schoolHead->unitPendidikan?->nama_unit ?? 'Belum ditetapkan' }}</td></tr>
-                                @endforeach
-                            </tbody></table></div>
-                        </section>
-                        <section class="dashboard-panel" aria-labelledby="location-management-title">
-                            <div class="panel-heading"><div><p class="panel-kicker">Referensi lokasi</p><h2 id="location-management-title">Kelola Lokasi Inventaris</h2></div></div>
-                            <form action="{{ route('admin.lokasi.store') }}" method="post" class="inventory-form-grid">
-                                @csrf
-                                <label>Nama Lokasi<input name="nama_lokasi" required maxlength="255"></label>
-                                <label>Unit Pendidikan<select name="unit_pendidikan_id" required><option value="">Pilih unit</option>@foreach ($units as $unit)<option value="{{ $unit->id }}">{{ $unit->nama_unit }}</option>@endforeach</select></label>
-                                <label>Keterangan<input name="keterangan"></label>
-                                <button class="inventory-primary-button" type="submit">Tambah Lokasi</button>
-                            </form>
-                            <div class="full-inventory-table location-data-table"><table><thead><tr><th>Lokasi</th><th>Unit</th><th>Aksi</th></tr></thead><tbody>
-                                @foreach ($locations as $location)
-                                    <tr><td>{{ $location->nama_lokasi }}</td><td>
-                                        <form action="{{ route('admin.lokasi.update', $location) }}" method="post">@csrf @method('PUT')
-                                            <select name="unit_pendidikan_id" required>@foreach ($units as $unit)<option value="{{ $unit->id }}" @selected($location->unit_pendidikan_id === $unit->id)>{{ $unit->nama_unit }}</option>@endforeach</select>
-                                            <button type="submit">Simpan Unit</button>
-                                        </form>
-                                    </td><td>
-                                        <form action="{{ route('admin.lokasi.destroy', $location) }}" method="post" onsubmit="return confirm('Hapus lokasi ini?')">@csrf @method('DELETE')<button type="submit">Hapus</button></form>
-                                    </td></tr>
-                                @endforeach
-                            </tbody></table></div>
-                        </section>
-                    @endif
                     <div class="inventory-modal" data-inventory-modal aria-hidden="true"><div class="inventory-modal-backdrop" data-close-inventory-modal></div><section class="inventory-modal-content" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title"><div class="inventory-modal-heading"><div><p class="panel-kicker">Data baru</p><h2 id="inventory-modal-title">Tambah Inventaris</h2></div><button class="inventory-modal-close" type="button" aria-label="Tutup" data-close-inventory-modal>&times;</button></div><form action="{{ route('admin.inventaris.store') }}" method="post" class="inventory-form">@csrf<div class="inventory-form-grid"><label>Nama Barang<input name="nama_barang" type="text" value="{{ old('nama_barang') }}" required></label><label>Kategori<select name="kategori_inventaris_id" required><option value="">Pilih kategori</option>@foreach ($categories as $category)<option value="{{ $category->id }}">{{ $category->nama_kategori }}</option>@endforeach</select></label><label>Lokasi<select name="lokasi_inventaris_id" required><option value="">Pilih lokasi</option>@foreach ($locations as $location)<option value="{{ $location->id }}">{{ $location->nama_lokasi }}{{ $location->unitPendidikan ? ' - '.$location->unitPendidikan->nama_unit : ' - Belum ditentukan' }}</option>@endforeach</select></label><label>Jumlah<input name="jumlah" type="number" min="1" value="{{ old('jumlah', 1) }}" required></label><label>Kondisi<select name="kondisi" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select></label><label>Tahun Perolehan<input name="tahun_perolehan" type="number" min="1900" max="{{ now()->year }}" value="{{ old('tahun_perolehan', now()->year) }}" required></label><label>Keterangan<input name="keterangan" value="{{ old('keterangan') }}"></label></div><div class="inventory-form-actions"><button class="inventory-secondary-button" type="button" data-close-inventory-modal>Batal</button><button class="inventory-primary-button" type="submit">Simpan Inventaris</button></div></form></section></div>
                     <section class="inventory-table-panel dashboard-panel"><div class="inventory-toolbar"><div><p class="panel-kicker">Daftar sarana dan prasarana</p><h2>Semua Inventaris <span>{{ $inventories->count() }} data</span></h2></div><form class="inventory-actions" action="{{ route('admin.inventaris') }}" method="get"><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari nama barang" aria-label="Cari nama barang"><label class="filter-control"><span>Kategori</span><select name="category"><option value="">Semua Kategori</option>@foreach ($categories as $category)<option value="{{ $category->id }}" @selected(request('category') == $category->id)>{{ $category->nama_kategori }}</option>@endforeach</select></label><label class="filter-control"><span>Lokasi</span><select name="location"><option value="">Semua Lokasi</option>@foreach ($locations as $location)<option value="{{ $location->id }}" @selected(request('location') == $location->id)>{{ $location->nama_lokasi }}</option>@endforeach</select></label><label class="filter-control"><span>Kondisi</span><select name="condition"><option value="">Semua Kondisi</option>@foreach (['Baik', 'Rusak Ringan', 'Rusak Berat'] as $condition)<option @selected(request('condition') === $condition)>{{ $condition }}</option>@endforeach</select></label><button class="filter-button" type="submit" aria-label="Terapkan filter">Filter</button></form></div><div class="full-inventory-table inventory-data-table"><table><thead><tr><th><input type="checkbox" aria-label="Pilih semua"></th><th>No</th><th>Nama Barang</th><th>Kategori</th><th>Lokasi</th><th>Jumlah</th><th>Kondisi</th><th>Terakhir Diperbarui</th><th>Aksi</th></tr></thead><tbody></tbody></table></div><div class="inventory-footer"><span>Menampilkan <strong>1-5</strong> dari <strong>0</strong> data</span><div><button type="button" disabled>←</button><button class="current-page" type="button">1</button><button type="button" disabled>→</button></div></div></section>
                 </div>

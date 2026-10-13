@@ -57,7 +57,7 @@
                         <div class="foundation-info-items">
                             <article>
                                 <span class="foundation-info-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
-                                <div><h3>Alamat</h3><p>Bungursari</p><small>Alamat lengkap belum dicantumkan</small></div>
+                                <div><h3>Alamat</h3><p>Kp, Jl. Sindangreret, Dangdeur, Kec. Bungursari, Kabupaten Purwakarta, Jawa Barat 41181</p></div>
                             </article>
                             <article>
                                 <span class="foundation-info-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg></span>

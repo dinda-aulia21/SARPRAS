@@ -127,16 +127,25 @@ class RolePermissionsTest extends TestCase
         }
     }
 
-    public function test_school_head_without_unit_cannot_see_unassigned_or_other_unit_inventory(): void
+    public function test_school_head_without_unit_can_see_all_inventory_and_reports(): void
     {
         $sd = UnitPendidikan::where('nama_unit', 'SD')->firstOrFail();
-        $sdLocation = LokasiInventaris::create(['unit_pendidikan_id' => $sd->id, 'nama_lokasi' => 'Ruang SD Terbatas']);
+        $smp = UnitPendidikan::where('nama_unit', 'SMP')->firstOrFail();
+        $sdLocation = LokasiInventaris::create(['unit_pendidikan_id' => $sd->id, 'nama_lokasi' => 'Ruang SD']);
+        $smpLocation = LokasiInventaris::create(['unit_pendidikan_id' => $smp->id, 'nama_lokasi' => 'Ruang SMP']);
         Inventory::create([
-            'name' => 'Inventaris SD',
-            'category' => 'Furnitur',
-            'location' => $sdLocation->nama_lokasi,
-            'quantity' => 3,
-            'condition' => 'Baik',
+            'nama_barang' => 'Inventaris SD',
+            'kategori_inventaris_id' => \App\Models\KategoriInventaris::firstOrCreate(['nama_kategori' => 'Furnitur'])->id,
+            'lokasi_inventaris_id' => $sdLocation->id,
+            'jumlah' => 3,
+            'kondisi' => 'Baik',
+        ]);
+        Inventory::create([
+            'nama_barang' => 'Inventaris SMP',
+            'kategori_inventaris_id' => \App\Models\KategoriInventaris::firstOrCreate(['nama_kategori' => 'Furnitur'])->id,
+            'lokasi_inventaris_id' => $smpLocation->id,
+            'jumlah' => 2,
+            'kondisi' => 'Baik',
         ]);
         Inventory::create([
             'name' => 'Inventaris Belum Dipetakan',
@@ -154,18 +163,22 @@ class RolePermissionsTest extends TestCase
         $this->actingAs($schoolHead)
             ->get(route('admin.inventaris'))
             ->assertOk()
-            ->assertDontSee('Inventaris SD')
-            ->assertDontSee('Inventaris Belum Dipetakan');
+            ->assertSee('Inventaris SD')
+            ->assertSee('Inventaris SMP')
+            ->assertSee('Inventaris Belum Dipetakan')
+            ->assertSee('Ruang SD')
+            ->assertSee('Ruang SMP');
 
         $this->get(route('admin.laporan'))
             ->assertOk()
-            ->assertDontSee('Inventaris SD')
-            ->assertDontSee('Inventaris Belum Dipetakan');
+            ->assertSee('Inventaris SD')
+            ->assertSee('Inventaris SMP')
+            ->assertSee('Inventaris Belum Dipetakan');
 
         $this->get(route('kepala-sekolah.dashboard'))
             ->assertOk()
-            ->assertDontSee('Inventaris SD')
-            ->assertDontSee('Inventaris Belum Dipetakan');
+            ->assertSee('Inventaris SD')
+            ->assertSee('Inventaris SMP');
     }
 
     public function test_admin_can_assign_a_school_head_to_a_unit(): void

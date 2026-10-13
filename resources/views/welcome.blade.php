@@ -68,18 +68,19 @@
                     <div class="foundation-contact-grid">
                         <div class="foundation-contact-item">
                             <h3>Alamat</h3>
-                            <p>Tulis alamat lengkap yayasan di sini</p>
+                            <p>Kp, Jl. Sindangreret, Dangdeur, Kec. Bungursari, Kabupaten Purwakarta, Jawa Barat 41181</p>
                         </div>
                         <div class="foundation-contact-item">
                             <h3>Kontak</h3>
-                            <p><strong>Telepon / WhatsApp</strong><br>Tulis nomor kontak yayasan di sini</p>
-                            <p><strong>Email</strong><br>Tulis alamat email yayasan di sini</p>
+                            <p><strong>Telepon / WhatsApp</strong><br>085714673916 (A. Dede Ali)<br>081958159264 (Wiwi Suherti)</p>
+                            <p><strong>Email</strong><br>nuurudz@gmail.com</p>
                         </div>
                         <div class="foundation-contact-item">
                             <h3>Media Sosial</h3>
-                            <p><strong>Instagram</strong><br>Tulis nama akun Instagram di sini</p>
-                            <p><strong>Facebook</strong><br>Tulis nama halaman Facebook di sini</p>
-                            <p><strong>YouTube</strong><br>Tulis nama kanal YouTube di sini</p>
+                            <p><strong>Instagram</strong><br>ponpes_nuurudzholaam</p>
+                            <p><strong>Facebook</strong><br>Ponpes Nuurudzholaam</p>
+                            <p><strong>YouTube</strong><br>Nuzo Tv</p>
+                            <p><strong>TikTok</strong><br>Media Nuzo</p>
                         </div>
                     </div>
                 </div>
