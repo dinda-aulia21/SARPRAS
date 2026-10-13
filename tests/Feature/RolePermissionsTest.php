@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Announcement;
 use App\Models\Inventory;
+use App\Models\LokasiInventaris;
+use App\Models\UnitPendidikan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -44,11 +46,22 @@ class RolePermissionsTest extends TestCase
 
     public function test_school_heads_can_view_but_cannot_manage_inventory_or_announcements(): void
     {
+        $sd = UnitPendidikan::where('nama_unit', 'SD')->firstOrFail();
+        $smp = UnitPendidikan::where('nama_unit', 'SMP')->firstOrFail();
+        $sdLocation = LokasiInventaris::create(['unit_pendidikan_id' => $sd->id, 'nama_lokasi' => 'Aula SD']);
+        $smpLocation = LokasiInventaris::create(['unit_pendidikan_id' => $smp->id, 'nama_lokasi' => 'Aula SMP']);
         $inventory = Inventory::create([
-            'name' => 'Proyektor Aula',
-            'category' => 'Elektronik',
-            'location' => 'Aula',
-            'quantity' => 2,
+            'nama_barang' => 'Proyektor Aula',
+            'kategori_inventaris_id' => \App\Models\KategoriInventaris::firstOrCreate(['nama_kategori' => 'Elektronik'])->id,
+            'lokasi_inventaris_id' => $sdLocation->id,
+            'jumlah' => 2,
+            'kondisi' => 'Baik',
+        ]);
+        Inventory::create([
+            'name' => 'Proyektor Unit Lain',
+            'kategori_inventaris_id' => \App\Models\KategoriInventaris::firstOrCreate(['nama_kategori' => 'Elektronik'])->id,
+            'lokasi_inventaris_id' => $smpLocation->id,
+            'quantity' => 1,
             'condition' => 'Baik',
         ]);
         $announcement = Announcement::create([
@@ -60,13 +73,21 @@ class RolePermissionsTest extends TestCase
         ]);
 
         foreach (['kepala_yayasan', 'kepala_sekolah'] as $role) {
-            $user = User::factory()->create(['role' => $role]);
+            $user = User::factory()->create([
+                'role' => $role,
+                'unit_pendidikan_id' => $role === 'kepala_sekolah' ? $sd->id : null,
+            ]);
             $this->actingAs($user);
 
             $this->get(route('admin.inventaris'))
                 ->assertOk()
                 ->assertSee('Proyektor Aula')
                 ->assertDontSee('class="inventory-primary-button" type="button" data-open-inventory-modal', false);
+            if ($role === 'kepala_sekolah') {
+                $this->get(route('admin.inventaris'))->assertDontSee('Proyektor Unit Lain');
+            } else {
+                $this->get(route('admin.inventaris'))->assertSee('Proyektor Unit Lain');
+            }
 
             $this->get(route('admin.pengumuman'))
                 ->assertOk()
@@ -104,5 +125,67 @@ class RolePermissionsTest extends TestCase
             ])->assertForbidden();
             $this->delete(route('admin.pengumuman.destroy', $announcement))->assertForbidden();
         }
+    }
+
+    public function test_school_head_without_unit_cannot_see_unassigned_or_other_unit_inventory(): void
+    {
+        $sd = UnitPendidikan::where('nama_unit', 'SD')->firstOrFail();
+        $sdLocation = LokasiInventaris::create(['unit_pendidikan_id' => $sd->id, 'nama_lokasi' => 'Ruang SD Terbatas']);
+        Inventory::create([
+            'name' => 'Inventaris SD',
+            'category' => 'Furnitur',
+            'location' => $sdLocation->nama_lokasi,
+            'quantity' => 3,
+            'condition' => 'Baik',
+        ]);
+        Inventory::create([
+            'name' => 'Inventaris Belum Dipetakan',
+            'category' => 'Furnitur',
+            'location' => 'Lokasi Tidak Diketahui',
+            'quantity' => 1,
+            'condition' => 'Baik',
+        ]);
+
+        $schoolHead = User::factory()->create([
+            'role' => 'kepala_sekolah',
+            'unit_pendidikan_id' => null,
+        ]);
+
+        $this->actingAs($schoolHead)
+            ->get(route('admin.inventaris'))
+            ->assertOk()
+            ->assertDontSee('Inventaris SD')
+            ->assertDontSee('Inventaris Belum Dipetakan');
+
+        $this->get(route('admin.laporan'))
+            ->assertOk()
+            ->assertDontSee('Inventaris SD')
+            ->assertDontSee('Inventaris Belum Dipetakan');
+
+        $this->get(route('kepala-sekolah.dashboard'))
+            ->assertOk()
+            ->assertDontSee('Inventaris SD')
+            ->assertDontSee('Inventaris Belum Dipetakan');
+    }
+
+    public function test_admin_can_assign_a_school_head_to_a_unit(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $schoolHead = User::factory()->create([
+            'role' => 'kepala_sekolah',
+            'unit_pendidikan_id' => null,
+        ]);
+        $smp = UnitPendidikan::where('nama_unit', 'SMP')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->put(route('admin.pengguna.unit.update', $schoolHead), [
+                'unit_pendidikan_id' => $smp->id,
+            ])
+            ->assertRedirect(route('admin.inventaris'));
+
+        $this->assertDatabaseHas('pengguna', [
+            'id' => $schoolHead->id,
+            'unit_pendidikan_id' => $smp->id,
+        ]);
     }
 }

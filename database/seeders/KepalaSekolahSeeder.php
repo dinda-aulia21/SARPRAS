@@ -13,10 +13,12 @@ class KepalaSekolahSeeder extends Seeder
 
         if (! $user->exists) {
             $user->name = 'Kepala Sekolah';
+            $user->username = 'kepala_sekolah';
             $user->password = 'sekolah123';
         }
 
         $user->role = 'kepala_sekolah';
+        $user->status = 'aktif';
         $user->save();
     }
 }

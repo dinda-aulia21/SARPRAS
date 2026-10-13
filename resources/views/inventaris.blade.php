@@ -32,9 +32,49 @@
                     @if ($errors->any())
                         <div class="inventory-alert inventory-alert-error" role="alert">Periksa kembali data inventaris yang diisi.</div>
                     @endif
-                    <section class="inventory-summary" aria-label="Ringkasan data inventaris"><article><span class="summary-icon summary-green">▣</span><div><small>Total Barang</small><strong>{{ 128 + $inventories->count() }}</strong></div></article><article><span class="summary-icon summary-blue">✓</span><div><small>Kondisi Baik</small><strong>112</strong></div></article><article><span class="summary-icon summary-yellow">!</span><div><small>Rusak Ringan</small><strong>10</strong></div></article><article><span class="summary-icon summary-red">!</span><div><small>Rusak Berat</small><strong>6</strong></div></article></section>
-                    <div class="inventory-modal" data-inventory-modal aria-hidden="true"><div class="inventory-modal-backdrop" data-close-inventory-modal></div><section class="inventory-modal-content" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title"><div class="inventory-modal-heading"><div><p class="panel-kicker">Data baru</p><h2 id="inventory-modal-title">Tambah Inventaris</h2></div><button class="inventory-modal-close" type="button" aria-label="Tutup" data-close-inventory-modal>&times;</button></div><form action="{{ route('admin.inventaris.store') }}" method="post" class="inventory-form">@csrf<div class="inventory-form-grid"><label>Nama Barang<input name="name" type="text" value="{{ old('name') }}" required></label><label>Kategori<select name="category" required><option value="">Pilih kategori</option><option>Elektronik</option><option>Furnitur</option><option>Sarana Pembelajaran</option><option>Kesehatan</option><option>Lainnya</option></select></label><label>Lokasi<input name="location" type="text" value="{{ old('location') }}" placeholder="Contoh: Ruang Kelas 1" required></label><label>Jumlah<input name="quantity" type="number" min="1" value="{{ old('quantity', 1) }}" required></label><label>Kondisi<select name="condition" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select></label></div><div class="inventory-form-actions"><button class="inventory-secondary-button" type="button" data-close-inventory-modal>Batal</button><button class="inventory-primary-button" type="submit">Simpan Inventaris</button></div></form></section></div>
-                    <section class="inventory-table-panel dashboard-panel"><div class="inventory-toolbar"><div><p class="panel-kicker">Daftar sarana dan prasarana</p><h2>Semua Inventaris <span>128 data</span></h2></div><div class="inventory-actions"><label class="filter-control"><span>Kategori</span><select><option>Semua Kategori</option><option>Elektronik</option><option>Furnitur</option><option>Sarana Pembelajaran</option></select></label><label class="filter-control"><span>Kondisi</span><select><option>Semua Kondisi</option><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select></label><button class="filter-button" type="button" aria-label="Buka filter tambahan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></button></div></div><div class="full-inventory-table"><table><thead><tr><th><input type="checkbox" aria-label="Pilih semua"></th><th>No</th><th>Nama Barang</th><th>Kategori</th><th>Lokasi</th><th>Jumlah</th><th>Kondisi</th><th>Terakhir Diperbarui</th><th>Aksi</th></tr></thead><tbody><tr><td><input type="checkbox" aria-label="Pilih Proyektor"></td><td>01</td><td><strong>Proyektor Epson EB-X06</strong><small>INV-2025-0001</small></td><td>Elektronik</td><td>Ruang Kelas 2</td><td>4 unit</td><td><span class="status status-good">Baik</span></td><td>20 Sep 2025</td><td><button class="row-action" type="button" aria-label="Opsi Proyektor">•••</button></td></tr><tr><td><input type="checkbox" aria-label="Pilih Meja Guru"></td><td>02</td><td><strong>Meja Guru</strong><small>INV-2025-0002</small></td><td>Furnitur</td><td>Ruang Guru</td><td>12 unit</td><td><span class="status status-good">Baik</span></td><td>19 Sep 2025</td><td><button class="row-action" type="button" aria-label="Opsi Meja Guru">•••</button></td></tr><tr><td><input type="checkbox" aria-label="Pilih Laptop"></td><td>03</td><td><strong>Laptop Lenovo ThinkPad</strong><small>INV-2025-0003</small></td><td>Elektronik</td><td>Ruang TU</td><td>8 unit</td><td><span class="status status-good">Baik</span></td><td>18 Sep 2025</td><td><button class="row-action" type="button" aria-label="Opsi Laptop">•••</button></td></tr><tr><td><input type="checkbox" aria-label="Pilih AC"></td><td>04</td><td><strong>AC Panasonic 1 PK</strong><small>INV-2025-0004</small></td><td>Elektronik</td><td>Ruang Kelas 1</td><td>3 unit</td><td><span class="status status-minor">Rusak Ringan</span></td><td>17 Sep 2025</td><td><button class="row-action" type="button" aria-label="Opsi AC">•••</button></td></tr><tr><td><input type="checkbox" aria-label="Pilih Kursi Plastik"></td><td>05</td><td><strong>Kursi Plastik</strong><small>INV-2025-0005</small></td><td>Furnitur</td><td>Lapangan</td><td>45 unit</td><td><span class="status status-good">Baik</span></td><td>15 Sep 2025</td><td><button class="row-action" type="button" aria-label="Opsi Kursi Plastik">•••</button></td></tr></tbody></table></div><div class="inventory-footer"><span>Menampilkan <strong>1-5</strong> dari <strong>128</strong> data</span><div><button type="button" disabled>←</button><button class="current-page" type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button">→</button></div></div></section>
+                    <section class="inventory-summary" aria-label="Ringkasan data inventaris"><article><span class="summary-icon summary-green">▣</span><div><small>Total Barang</small><strong>0</strong></div></article><article><span class="summary-icon summary-blue">✓</span><div><small>Kondisi Baik</small><strong>0</strong></div></article><article><span class="summary-icon summary-yellow">!</span><div><small>Rusak Ringan</small><strong>0</strong></div></article><article><span class="summary-icon summary-red">!</span><div><small>Rusak Berat</small><strong>0</strong></div></article></section>
+                    @if ($canManage)
+                        <section class="dashboard-panel" aria-labelledby="school-head-unit-title">
+                            <div class="panel-heading"><div><p class="panel-kicker">Akses inventaris</p><h2 id="school-head-unit-title">Unit Kepala Sekolah</h2></div></div>
+                            <div class="full-inventory-table school-head-units-table"><table><thead><tr><th>Nama</th><th>Email</th><th>Atur Unit Pendidikan</th><th>Status Unit</th></tr></thead><tbody>
+                                @foreach ($schoolHeads as $schoolHead)
+                                    <tr><td>{{ $schoolHead->nama_lengkap }}</td><td>{{ $schoolHead->email }}</td><td>
+                                        <form action="{{ route('admin.pengguna.unit.update', $schoolHead) }}" method="post">@csrf @method('PUT')
+                                            <select name="unit_pendidikan_id" required aria-label="Unit pendidikan {{ $schoolHead->nama_lengkap }}">
+                                                <option value="">Pilih unit</option>
+                                                @foreach ($units as $unit)<option value="{{ $unit->id }}" @selected($schoolHead->unit_pendidikan_id === $unit->id)>{{ $unit->nama_unit }}</option>@endforeach
+                                            </select>
+                                            <button type="submit">Simpan Unit</button>
+                                        </form>
+                                    </td><td>{{ $schoolHead->unitPendidikan?->nama_unit ?? 'Belum ditetapkan' }}</td></tr>
+                                @endforeach
+                            </tbody></table></div>
+                        </section>
+                        <section class="dashboard-panel" aria-labelledby="location-management-title">
+                            <div class="panel-heading"><div><p class="panel-kicker">Referensi lokasi</p><h2 id="location-management-title">Kelola Lokasi Inventaris</h2></div></div>
+                            <form action="{{ route('admin.lokasi.store') }}" method="post" class="inventory-form-grid">
+                                @csrf
+                                <label>Nama Lokasi<input name="nama_lokasi" required maxlength="255"></label>
+                                <label>Unit Pendidikan<select name="unit_pendidikan_id" required><option value="">Pilih unit</option>@foreach ($units as $unit)<option value="{{ $unit->id }}">{{ $unit->nama_unit }}</option>@endforeach</select></label>
+                                <label>Keterangan<input name="keterangan"></label>
+                                <button class="inventory-primary-button" type="submit">Tambah Lokasi</button>
+                            </form>
+                            <div class="full-inventory-table location-data-table"><table><thead><tr><th>Lokasi</th><th>Unit</th><th>Aksi</th></tr></thead><tbody>
+                                @foreach ($locations as $location)
+                                    <tr><td>{{ $location->nama_lokasi }}</td><td>
+                                        <form action="{{ route('admin.lokasi.update', $location) }}" method="post">@csrf @method('PUT')
+                                            <select name="unit_pendidikan_id" required>@foreach ($units as $unit)<option value="{{ $unit->id }}" @selected($location->unit_pendidikan_id === $unit->id)>{{ $unit->nama_unit }}</option>@endforeach</select>
+                                            <button type="submit">Simpan Unit</button>
+                                        </form>
+                                    </td><td>
+                                        <form action="{{ route('admin.lokasi.destroy', $location) }}" method="post" onsubmit="return confirm('Hapus lokasi ini?')">@csrf @method('DELETE')<button type="submit">Hapus</button></form>
+                                    </td></tr>
+                                @endforeach
+                            </tbody></table></div>
+                        </section>
+                    @endif
+                    <div class="inventory-modal" data-inventory-modal aria-hidden="true"><div class="inventory-modal-backdrop" data-close-inventory-modal></div><section class="inventory-modal-content" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title"><div class="inventory-modal-heading"><div><p class="panel-kicker">Data baru</p><h2 id="inventory-modal-title">Tambah Inventaris</h2></div><button class="inventory-modal-close" type="button" aria-label="Tutup" data-close-inventory-modal>&times;</button></div><form action="{{ route('admin.inventaris.store') }}" method="post" class="inventory-form">@csrf<div class="inventory-form-grid"><label>Nama Barang<input name="nama_barang" type="text" value="{{ old('nama_barang') }}" required></label><label>Kategori<select name="kategori_inventaris_id" required><option value="">Pilih kategori</option>@foreach ($categories as $category)<option value="{{ $category->id }}">{{ $category->nama_kategori }}</option>@endforeach</select></label><label>Lokasi<select name="lokasi_inventaris_id" required><option value="">Pilih lokasi</option>@foreach ($locations as $location)<option value="{{ $location->id }}">{{ $location->nama_lokasi }}{{ $location->unitPendidikan ? ' - '.$location->unitPendidikan->nama_unit : ' - Belum ditentukan' }}</option>@endforeach</select></label><label>Jumlah<input name="jumlah" type="number" min="1" value="{{ old('jumlah', 1) }}" required></label><label>Kondisi<select name="kondisi" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select></label><label>Tahun Perolehan<input name="tahun_perolehan" type="number" min="1900" max="{{ now()->year }}" value="{{ old('tahun_perolehan', now()->year) }}" required></label><label>Keterangan<input name="keterangan" value="{{ old('keterangan') }}"></label></div><div class="inventory-form-actions"><button class="inventory-secondary-button" type="button" data-close-inventory-modal>Batal</button><button class="inventory-primary-button" type="submit">Simpan Inventaris</button></div></form></section></div>
+                    <section class="inventory-table-panel dashboard-panel"><div class="inventory-toolbar"><div><p class="panel-kicker">Daftar sarana dan prasarana</p><h2>Semua Inventaris <span>{{ $inventories->count() }} data</span></h2></div><form class="inventory-actions" action="{{ route('admin.inventaris') }}" method="get"><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari nama barang" aria-label="Cari nama barang"><label class="filter-control"><span>Kategori</span><select name="category"><option value="">Semua Kategori</option>@foreach ($categories as $category)<option value="{{ $category->id }}" @selected(request('category') == $category->id)>{{ $category->nama_kategori }}</option>@endforeach</select></label><label class="filter-control"><span>Lokasi</span><select name="location"><option value="">Semua Lokasi</option>@foreach ($locations as $location)<option value="{{ $location->id }}" @selected(request('location') == $location->id)>{{ $location->nama_lokasi }}</option>@endforeach</select></label><label class="filter-control"><span>Kondisi</span><select name="condition"><option value="">Semua Kondisi</option>@foreach (['Baik', 'Rusak Ringan', 'Rusak Berat'] as $condition)<option @selected(request('condition') === $condition)>{{ $condition }}</option>@endforeach</select></label><button class="filter-button" type="submit" aria-label="Terapkan filter">Filter</button></form></div><div class="full-inventory-table inventory-data-table"><table><thead><tr><th><input type="checkbox" aria-label="Pilih semua"></th><th>No</th><th>Nama Barang</th><th>Kategori</th><th>Lokasi</th><th>Jumlah</th><th>Kondisi</th><th>Terakhir Diperbarui</th><th>Aksi</th></tr></thead><tbody></tbody></table></div><div class="inventory-footer"><span>Menampilkan <strong>1-5</strong> dari <strong>0</strong> data</span><div><button type="button" disabled>←</button><button class="current-page" type="button">1</button><button type="button" disabled>→</button></div></div></section>
                 </div>
             </main>
         </div>
@@ -74,11 +114,13 @@
                     inventoryFormSubmit.textContent = inventory ? 'Simpan Perubahan' : 'Simpan Inventaris';
 
                     if (inventory) {
-                        inventoryForm.elements.namedItem('name').value = inventory.name;
-                        inventoryForm.elements.namedItem('category').value = inventory.category;
-                        inventoryForm.elements.namedItem('location').value = inventory.location;
-                        inventoryForm.elements.namedItem('quantity').value = inventory.quantity;
-                        inventoryForm.elements.namedItem('condition').value = inventory.condition;
+                        inventoryForm.elements.namedItem('nama_barang').value = inventory.nama_barang;
+                        inventoryForm.elements.namedItem('kategori_inventaris_id').value = inventory.kategori_inventaris_id;
+                        inventoryForm.elements.namedItem('lokasi_inventaris_id').value = inventory.lokasi_inventaris_id;
+                        inventoryForm.elements.namedItem('jumlah').value = inventory.jumlah;
+                        inventoryForm.elements.namedItem('kondisi').value = inventory.kondisi;
+                        inventoryForm.elements.namedItem('tahun_perolehan').value = inventory.tahun_perolehan;
+                        inventoryForm.elements.namedItem('keterangan').value = inventory.keterangan ?? '';
                     }
                 };
 
@@ -90,11 +132,11 @@
                 const savedInventories = @json($inventories);
                 const canManageInventory = @json($canManage);
                 const inventoryTotals = savedInventories.reduce((totals, inventory) => {
-                    const quantity = Number(inventory.quantity) || 0;
+                    const quantity = Number(inventory.jumlah) || 0;
                     totals.total += quantity;
-                    if (inventory.condition === 'Baik') totals.good += quantity;
-                    if (inventory.condition === 'Rusak Ringan') totals.minor += quantity;
-                    if (inventory.condition === 'Rusak Berat') totals.major += quantity;
+                    if (inventory.kondisi === 'Baik') totals.good += quantity;
+                    if (inventory.kondisi === 'Rusak Ringan') totals.minor += quantity;
+                    if (inventory.kondisi === 'Rusak Berat') totals.major += quantity;
                     return totals;
                 }, { total: 0, good: 0, minor: 0, major: 0 });
                 document.querySelectorAll('.inventory-summary strong').forEach((value, index) => {
@@ -102,15 +144,15 @@
                 });
                 const inventoryCountLabel = document.querySelector('.inventory-toolbar h2 span');
                 if (inventoryCountLabel) inventoryCountLabel.textContent = `${savedInventories.length} data`;
-                const inventoryBody = document.querySelector('.full-inventory-table tbody');
-                document.querySelector('.full-inventory-table thead th:first-child')?.remove();
+                const inventoryBody = document.querySelector('.inventory-data-table tbody');
+                document.querySelector('.inventory-data-table thead th:first-child')?.remove();
                 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' })[character]);
                 if (inventoryBody) inventoryBody.innerHTML = '';
                 savedInventories.forEach((inventory, index) => {
                     const row = document.createElement('tr');
-                    const conditionClass = inventory.condition === 'Baik' ? 'status-good' : (inventory.condition === 'Rusak Ringan' ? 'status-minor' : 'status-major');
+                    const conditionClass = inventory.kondisi === 'Baik' ? 'status-good' : (inventory.kondisi === 'Rusak Ringan' ? 'status-minor' : 'status-major');
                     const safeId = escapeHtml(inventory.id);
-                    row.innerHTML = `<td>${String(index + 1).padStart(2, '0')}</td><td><strong>${escapeHtml(inventory.name)}</strong><small>INV-${safeId}</small></td><td>${escapeHtml(inventory.category)}</td><td>${escapeHtml(inventory.location)}</td><td>${escapeHtml(inventory.quantity)} unit</td><td><span class="status ${conditionClass}">${escapeHtml(inventory.condition)}</span></td><td>${new Date(inventory.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td><td><div class="inventory-row-actions"><button class="row-action" type="button" data-toggle-inventory-actions aria-expanded="false" aria-label="Aksi ${escapeHtml(inventory.name)}">•••</button><div class="inventory-action-menu" hidden><button type="button" data-edit-inventory="${safeId}" data-name="${escapeHtml(inventory.name)}" data-category="${escapeHtml(inventory.category)}" data-location="${escapeHtml(inventory.location)}" data-quantity="${escapeHtml(inventory.quantity)}" data-condition="${escapeHtml(inventory.condition)}">Ubah</button><button type="button" class="inventory-delete-action" data-delete-inventory="${safeId}">Hapus</button></div></div></td>`;
+                    row.innerHTML = `<td>${String(index + 1).padStart(2, '0')}</td><td><strong>${escapeHtml(inventory.nama_barang)}</strong><small>${escapeHtml(inventory.kode_barang)}</small></td><td>${escapeHtml(inventory.category)}</td><td>${escapeHtml(inventory.location)}</td><td>${escapeHtml(inventory.jumlah)} unit</td><td><span class="status ${conditionClass}">${escapeHtml(inventory.kondisi)}</span></td><td>${new Date(inventory.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td><td><div class="inventory-row-actions"><button class="row-action" type="button" data-toggle-inventory-actions aria-expanded="false" aria-label="Aksi ${escapeHtml(inventory.nama_barang)}">•••</button><div class="inventory-action-menu" hidden><button type="button" data-edit-inventory="${safeId}">Ubah</button><button type="button" class="inventory-delete-action" data-delete-inventory="${safeId}">Hapus</button></div></div></td>`;
                     const actionMenu = row.querySelector('.inventory-action-menu');
                     const detailButton = document.createElement('button');
                     detailButton.type = 'button';
@@ -222,12 +264,12 @@
                     if (detailButton) {
                         const inventory = savedInventories.find((item) => String(item.id) === detailButton.dataset.viewInventory);
                         if (inventory) {
-                            inventoryDetailDialog.querySelector('[data-detail-code]').textContent = `INV-${inventory.id}`;
-                            inventoryDetailDialog.querySelector('[data-detail-name]').textContent = inventory.name;
+                            inventoryDetailDialog.querySelector('[data-detail-code]').textContent = inventory.kode_barang;
+                            inventoryDetailDialog.querySelector('[data-detail-name]').textContent = inventory.nama_barang;
                             inventoryDetailDialog.querySelector('[data-detail-category]').textContent = inventory.category;
                             inventoryDetailDialog.querySelector('[data-detail-location]').textContent = inventory.location;
-                            inventoryDetailDialog.querySelector('[data-detail-quantity]').textContent = `${inventory.quantity} unit`;
-                            inventoryDetailDialog.querySelector('[data-detail-condition]').textContent = inventory.condition;
+                            inventoryDetailDialog.querySelector('[data-detail-quantity]').textContent = `${inventory.jumlah} unit`;
+                            inventoryDetailDialog.querySelector('[data-detail-condition]').textContent = inventory.kondisi;
                             inventoryDetailDialog.showModal();
                         }
                         closeInventoryMenus();
@@ -237,11 +279,7 @@
                     if (editButton) {
                         setInventoryForm({
                             id: editButton.dataset.editInventory,
-                            name: editButton.dataset.name,
-                            category: editButton.dataset.category,
-                            location: editButton.dataset.location,
-                            quantity: editButton.dataset.quantity,
-                            condition: editButton.dataset.condition,
+                            ...savedInventories.find((item) => String(item.id) === editButton.dataset.editInventory),
                         });
                         closeInventoryMenus();
                         setInventoryModal(true);

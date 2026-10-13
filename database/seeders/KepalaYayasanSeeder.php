@@ -13,10 +13,12 @@ class KepalaYayasanSeeder extends Seeder
 
         if (! $user->exists) {
             $user->name = 'Kepala Yayasan';
+            $user->username = 'kepala_yayasan';
             $user->password = 'kepala123';
         }
 
         $user->role = 'kepala_yayasan';
+        $user->status = 'aktif';
         $user->save();
     }
 }

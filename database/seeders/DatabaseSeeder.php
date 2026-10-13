@@ -16,8 +16,10 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@raudhahsyarifah.sch.id'],
             [
                 'name' => 'Administrator',
+                'username' => 'admin',
                 'password' => 'admin123',
                 'role' => 'admin',
+                'status' => 'aktif',
             ]
         );
 

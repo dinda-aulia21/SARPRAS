@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Announcement extends Model
 {
@@ -12,16 +13,19 @@ class Announcement extends Model
     protected $table = 'pengumuman';
 
     protected $fillable = [
+        'pengguna_id',
+        'judul',
+        'isi_pengumuman',
+        'tanggal_pengumuman',
+        'status',
         'title',
         'body',
         'publish_date',
-        'status',
         'type',
     ];
 
     protected $casts = [
-        'tanggal_mulai' => 'date',
-        'tanggal_selesai' => 'date',
+        'tanggal_pengumuman' => 'date',
     ];
 
     public function getTitleAttribute(): string
@@ -36,22 +40,22 @@ class Announcement extends Model
 
     public function getBodyAttribute(): string
     {
-        return $this->attributes['konten'];
+        return $this->attributes['isi_pengumuman'];
     }
 
     public function setBodyAttribute(string $value): void
     {
-        $this->attributes['konten'] = $value;
+        $this->attributes['isi_pengumuman'] = $value;
     }
 
     public function getPublishDateAttribute(): mixed
     {
-        return $this->tanggal_mulai;
+        return $this->tanggal_pengumuman;
     }
 
     public function setPublishDateAttribute(string $value): void
     {
-        $this->attributes['tanggal_mulai'] = $value;
+        $this->attributes['tanggal_pengumuman'] = $value;
     }
 
     public function getStatusAttribute(): string
@@ -61,7 +65,7 @@ class Announcement extends Model
 
     public function setStatusAttribute(string $value): void
     {
-        $this->attributes['status'] = $value === 'Aktif' ? 'aktif' : 'arsip';
+        $this->attributes['status'] = $value === 'Aktif' ? 'aktif' : 'tidak_aktif';
     }
 
     public function getTypeAttribute(): string
@@ -72,5 +76,10 @@ class Announcement extends Model
     public function setTypeAttribute(string $value): void
     {
         $this->attributes['tipe'] = $value;
+    }
+
+    public function pengguna(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pengguna_id');
     }
 }

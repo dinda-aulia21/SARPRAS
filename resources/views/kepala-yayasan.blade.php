@@ -64,7 +64,7 @@
                                 <div class="executive-inventory-table-wrap"><table class="executive-inventory-table"><thead><tr><th>No</th><th>Kode Barang</th><th>Nama Barang</th><th>Kategori</th><th>Lokasi</th><th>Jumlah</th><th>Kondisi</th></tr></thead><tbody>
                                     @forelse ($recentInventories as $index => $inventory)
                                         @php($conditionClass = $inventory->condition === 'Baik' ? 'status-good' : ($inventory->condition === 'Rusak Ringan' ? 'status-minor' : 'status-major'))
-                                        <tr><td>{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</td><td>INV-{{ str_pad($inventory->id, 5, '0', STR_PAD_LEFT) }}</td><td>{{ $inventory->name }}</td><td>{{ $inventory->category }}</td><td>{{ $inventory->location }}</td><td>{{ $inventory->quantity }}</td><td><span class="status {{ $conditionClass }}">{{ $inventory->condition }}</span></td></tr>
+                                        <tr><td>{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</td><td>{{ $inventory->kode_barang }}</td><td>{{ $inventory->name }}</td><td>{{ $inventory->category }}</td><td>{{ $inventory->location }}</td><td>{{ $inventory->quantity }}</td><td><span class="status {{ $conditionClass }}">{{ $inventory->condition }}</span></td></tr>
                                     @empty
                                         <tr><td class="executive-table-empty" colspan="7">Belum ada data inventaris.</td></tr>
                                     @endforelse

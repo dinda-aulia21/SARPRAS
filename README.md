@@ -21,6 +21,18 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Database Sarpras
+
+Set `DB_DATABASE=sarpras` in `.env` before running migrations. Back up the database first, then apply pending changes with:
+
+```sh
+php artisan migrate
+```
+
+The inventory normalization migration preserves existing inventory IDs and values while creating category and location references. Existing locations mapped with available information are `Ruang Kelas 2` and `Ruang Kelas 3` to SD, and `Ruang Kelas 7` to SMP. Locations whose unit is unknown remain unassigned until an Admin updates them from the inventory page. Existing acquisition years and announcement authors were not recorded, so those fields remain unknown for existing rows.
+
+The existing Kepala Sekolah account also has no recorded education unit. Assign the correct unit from the Admin inventory page before it needs to view inventory; until then, unit-scoped inventory pages, dashboards, and reports return no inventory rows for that account. Do not guess the unit. Back up the database before applying schema changes; the normalization migration intentionally blocks automatic rollback because unit/category metadata cannot be losslessly reconstructed in the old schema.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

@@ -28,10 +28,10 @@ class AnnouncementManagementTest extends TestCase
         ])->assertRedirect(route('admin.pengumuman'));
 
         $this->assertDatabaseHas('pengumuman', [
+            'pengguna_id' => $admin->id,
             'judul' => 'Jadwal Pemeliharaan',
-            'konten' => 'Pemeliharaan ruang kelas dilakukan hari Jumat.',
-            'tipe' => 'umum',
-            'tanggal_mulai' => '2026-10-02',
+            'isi_pengumuman' => 'Pemeliharaan ruang kelas dilakukan hari Jumat.',
+            'tanggal_pengumuman' => '2026-10-02',
             'status' => 'aktif',
         ]);
 
@@ -47,7 +47,7 @@ class AnnouncementManagementTest extends TestCase
         $this->assertDatabaseHas('pengumuman', [
             'id' => $announcement->id,
             'judul' => 'Jadwal Pemeliharaan Gedung',
-            'status' => 'arsip',
+            'status' => 'tidak_aktif',
         ]);
 
         $this->delete(route('admin.pengumuman.destroy', $announcement))

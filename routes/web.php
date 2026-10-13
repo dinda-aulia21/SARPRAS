@@ -5,7 +5,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 use App\Models\Announcement;
+use App\Models\KategoriInventaris;
 use App\Models\Inventory;
+use App\Models\LokasiInventaris;
+use App\Models\UnitPendidikan;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,15 +26,32 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-$executiveDashboard = function (Request $request, string $dashboardTitle) {
-    $totalQuantity = Inventory::sum('quantity');
-    $conditionTotals = Inventory::query()
-        ->selectRaw('`condition` as condition_value, SUM(quantity) as total')
-        ->groupBy('condition')
+$scopeToUserUnit = function ($query, User $user) {
+    if ($user->role !== 'kepala_sekolah') {
+        return $query;
+    }
+
+    if ($user->unit_pendidikan_id === null) {
+        return $query->whereRaw('1 = 0');
+    }
+
+    return $query->whereHas('lokasiInventaris', fn ($locations) => $locations
+        ->where('unit_pendidikan_id', $user->unit_pendidikan_id));
+};
+
+$executiveDashboard = function (Request $request, string $dashboardTitle) use ($scopeToUserUnit) {
+    $inventories = Inventory::query()
+        ->with(['kategoriInventaris', 'lokasiInventaris.unitPendidikan'])
+        ->tap(fn ($query) => $scopeToUserUnit($query, $request->user()));
+    $totalQuantity = (clone $inventories)->sum('jumlah');
+    $conditionTotals = Inventory::query()->tap(fn ($query) => $scopeToUserUnit($query, $request->user()))
+        ->selectRaw('kondisi as condition_value, SUM(jumlah) as total')
+        ->groupBy('kondisi')
         ->pluck('total', 'condition_value');
-    $categorySummaries = Inventory::query()
-        ->selectRaw('category, SUM(quantity) as total')
-        ->groupBy('category')
+    $categorySummaries = Inventory::query()->tap(fn ($query) => $scopeToUserUnit($query, $request->user()))
+        ->join('kategori_inventaris', 'data_inventaris.kategori_inventaris_id', '=', 'kategori_inventaris.id')
+        ->selectRaw('kategori_inventaris.nama_kategori as category, SUM(data_inventaris.jumlah) as total')
+        ->groupBy('kategori_inventaris.nama_kategori')
         ->orderByDesc('total')
         ->get();
     $categoryColors = ['#3288d1', '#15936e', '#f1bd35', '#8158c6', '#e56983'];
@@ -67,17 +88,18 @@ $executiveDashboard = function (Request $request, string $dashboardTitle) {
         'categorySummaries' => $categorySummaries,
         'categoryGradient' => 'conic-gradient(' . implode(', ', $categoryStops) . ')',
         'locationSummaries' => Inventory::query()
-            ->selectRaw('location, SUM(quantity) as total')
-            ->groupBy('location')
+            ->tap(fn ($query) => $scopeToUserUnit($query, $request->user()))
+            ->join('lokasi_inventaris', 'data_inventaris.lokasi_inventaris_id', '=', 'lokasi_inventaris.id')
+            ->selectRaw('lokasi_inventaris.nama_lokasi as location, SUM(data_inventaris.jumlah) as total')
+            ->groupBy('lokasi_inventaris.nama_lokasi')
             ->orderByDesc('total')
             ->take(3)
             ->get(),
-        'recentInventories' => Inventory::latest()->take(5)->get(),
+        'recentInventories' => (clone $inventories)->latest()->take(5)->get(),
         'recentAnnouncements' => Announcement::query()
             ->where('status', 'aktif')
-            ->whereDate('tanggal_mulai', '<=', today())
-            ->where(fn ($query) => $query->whereNull('tanggal_selesai')->orWhereDate('tanggal_selesai', '>=', today()))
-            ->orderByDesc('tanggal_mulai')
+            ->whereDate('tanggal_pengumuman', '<=', today())
+            ->orderByDesc('tanggal_pengumuman')
             ->orderByDesc('id')
             ->take(3)
             ->get(),
@@ -104,13 +126,35 @@ Route::get('/kepala-sekolah', function (Request $request) use ($executiveDashboa
     return $executiveDashboard($request, 'Kepala Sekolah');
 })->middleware('auth')->name('kepala-sekolah.dashboard');
 
-Route::get('/admin/inventaris', function () {
+Route::get('/admin/inventaris', function (Request $request) use ($scopeToUserUnit) {
+    $user = $request->user();
+    $inventories = Inventory::query()
+        ->with(['kategoriInventaris', 'lokasiInventaris.unitPendidikan'])
+        ->tap(fn ($query) => $scopeToUserUnit($query, $user))
+        ->when($request->filled('search'), fn ($query) => $query->where(fn ($search) => $search
+            ->where('nama_barang', 'like', '%' . $request->input('search') . '%')
+            ->orWhereHas('kategoriInventaris', fn ($category) => $category->where('nama_kategori', 'like', '%' . $request->input('search') . '%'))
+            ->orWhereHas('lokasiInventaris', fn ($location) => $location->where('nama_lokasi', 'like', '%' . $request->input('search') . '%')))
+        )
+        ->when($request->filled('category'), fn ($query) => $query->where('kategori_inventaris_id', $request->input('category')))
+        ->when($request->filled('location'), fn ($query) => $query->where('lokasi_inventaris_id', $request->input('location')))
+        ->when($request->filled('condition'), fn ($query) => $query->where('kondisi', $request->input('condition')))
+        ->latest()
+        ->get();
+
     return view('inventaris', [
-        'inventories' => Inventory::latest()->get(),
+        'inventories' => $inventories,
+        'categories' => KategoriInventaris::orderBy('nama_kategori')->get(),
+        'locations' => LokasiInventaris::with('unitPendidikan')
+            ->when($user->role === 'kepala_sekolah', fn ($query) => $query->where('unit_pendidikan_id', $user->unit_pendidikan_id))
+            ->orderBy('nama_lokasi')->get(),
+        'units' => UnitPendidikan::orderBy('nama_unit')->get(),
+        'schoolHeads' => User::whereHas('hakAkses', fn ($query) => $query->where('nama_hak_akses', 'Kepala Sekolah'))
+            ->with(['unitPendidikan', 'hakAkses'])->orderBy('nama_lengkap')->get(),
     ]);
 })->middleware('auth')->name('admin.inventaris');
 
-Route::get('/admin/laporan', function (Request $request) {
+Route::get('/admin/laporan', function (Request $request) use ($scopeToUserUnit) {
     $type = $request->query('type', 'inventaris');
     $types = ['inventaris', 'kondisi', 'cetak'];
 
@@ -118,21 +162,29 @@ Route::get('/admin/laporan', function (Request $request) {
         $type = 'inventaris';
     }
 
+    $user = $request->user();
     $inventories = Inventory::query()
-        ->when($request->filled('year'), fn ($query) => $query->whereYear('created_at', $request->input('year')))
-        ->when($request->filled('category'), fn ($query) => $query->where('category', $request->input('category')))
-        ->when($request->filled('location'), fn ($query) => $query->where('location', $request->input('location')))
-        ->when($request->filled('condition'), fn ($query) => $query->where('condition', $request->input('condition')))
+        ->with(['kategoriInventaris', 'lokasiInventaris.unitPendidikan'])
+        ->tap(fn ($query) => $scopeToUserUnit($query, $user))
+        ->when($request->filled('year'), fn ($query) => $query->where('tahun_perolehan', $request->input('year')))
+        ->when($request->filled('category'), fn ($query) => $query->where('kategori_inventaris_id', $request->input('category')))
+        ->when($request->filled('location'), fn ($query) => $query->where('lokasi_inventaris_id', $request->input('location')))
+        ->when($request->filled('condition'), fn ($query) => $query->where('kondisi', $request->input('condition')))
         ->latest()
         ->get();
 
-    $allInventories = Inventory::query()->get();
+    $allInventories = Inventory::query()
+        ->with(['kategoriInventaris', 'lokasiInventaris.unitPendidikan'])
+        ->tap(fn ($query) => $scopeToUserUnit($query, $user))
+        ->get();
 
     return view('laporan', [
         'inventories' => $inventories,
-        'years' => $allInventories->pluck('created_at')->filter()->map(fn ($date) => $date->format('Y'))->unique()->sortDesc()->values(),
-        'categories' => $allInventories->pluck('category')->unique()->sort()->values(),
-        'locations' => $allInventories->pluck('location')->unique()->sort()->values(),
+        'years' => $allInventories->pluck('tahun_perolehan')->filter()->unique()->sortDesc()->values(),
+        'categories' => KategoriInventaris::orderBy('nama_kategori')->get(),
+        'locations' => LokasiInventaris::with('unitPendidikan')
+            ->when($user->role === 'kepala_sekolah', fn ($query) => $query->where('unit_pendidikan_id', $user->unit_pendidikan_id))
+            ->orderBy('nama_lokasi')->get(),
         'type' => $type,
     ]);
 })->middleware('auth')->name('admin.laporan');
@@ -143,11 +195,11 @@ Route::get('/admin/pengaturan', function (Request $request) {
 
 Route::get('/admin/pengumuman', function (Request $request) {
     $announcements = Announcement::query()
-        ->when($request->filled('status') && $request->input('status') !== 'Semua', fn ($query) => $query->where('status', $request->input('status') === 'Aktif' ? 'aktif' : 'arsip'))
+        ->when($request->filled('status') && $request->input('status') !== 'Semua', fn ($query) => $query->where('status', $request->input('status') === 'Aktif' ? 'aktif' : 'tidak_aktif'))
         ->when($request->filled('search'), fn ($query) => $query->where(fn ($subquery) => $subquery
             ->where('judul', 'like', '%' . $request->input('search') . '%')
-            ->orWhere('konten', 'like', '%' . $request->input('search') . '%')))
-        ->orderByDesc('tanggal_mulai')
+        ->orWhere('isi_pengumuman', 'like', '%' . $request->input('search') . '%')))
+        ->orderByDesc('tanggal_pengumuman')
         ->orderByDesc('id')
         ->paginate(6)
         ->withQueryString();
@@ -169,7 +221,11 @@ Route::post('/admin/pengumuman', function (Request $request) use ($requireAdmin)
         'status' => ['required', Rule::in(['Aktif', 'Tidak Aktif'])],
     ]);
 
-    Announcement::create([...$validated, 'type' => 'umum']);
+    Announcement::create([
+        'pengguna_id' => $request->user()->id,
+        ...$validated,
+        'type' => 'umum',
+    ]);
 
     return redirect()->route('admin.pengumuman')->with('success', 'Pengumuman berhasil ditambahkan.');
 })->middleware('auth')->name('admin.pengumuman.store');
@@ -219,15 +275,30 @@ Route::put('/admin/pengaturan/password', function (Request $request) {
     return redirect()->route('admin.pengaturan')->with('password_success', 'Password berhasil diperbarui.');
 })->middleware('auth')->name('admin.pengaturan.password');
 
+Route::put('/admin/pengguna/{schoolHead}/unit', function (Request $request, User $schoolHead) use ($requireAdmin) {
+    $requireAdmin($request);
+    abort_unless($schoolHead->role === 'kepala_sekolah', 404);
+
+    $validated = $request->validate([
+        'unit_pendidikan_id' => ['required', 'exists:unit_pendidikan,id'],
+    ]);
+
+    $schoolHead->update($validated);
+
+    return redirect()->route('admin.inventaris')->with('success', 'Unit Kepala Sekolah berhasil diperbarui.');
+})->middleware('auth')->name('admin.pengguna.unit.update');
+
 Route::post('/admin/inventaris', function (Request $request) use ($requireAdmin) {
     $requireAdmin($request);
 
     $validated = $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'category' => ['required', 'string', 'max:100'],
-        'location' => ['required', 'string', 'max:255'],
-        'quantity' => ['required', 'integer', 'min:1'],
-        'condition' => ['required', 'in:Baik,Rusak Ringan,Rusak Berat'],
+        'nama_barang' => ['required', 'string', 'max:255'],
+        'kategori_inventaris_id' => ['required', 'exists:kategori_inventaris,id'],
+        'lokasi_inventaris_id' => ['required', 'exists:lokasi_inventaris,id'],
+        'jumlah' => ['required', 'integer', 'min:1'],
+        'kondisi' => ['required', 'in:Baik,Rusak Ringan,Rusak Berat'],
+        'tahun_perolehan' => ['required', 'integer', 'min:1900', 'max:' . now()->year],
+        'keterangan' => ['nullable', 'string'],
     ]);
 
     Inventory::create($validated);
@@ -239,11 +310,13 @@ Route::put('/admin/inventaris/{inventory}', function (Request $request, Inventor
     $requireAdmin($request);
 
     $validated = $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'category' => ['required', 'string', 'max:100'],
-        'location' => ['required', 'string', 'max:255'],
-        'quantity' => ['required', 'integer', 'min:1'],
-        'condition' => ['required', 'in:Baik,Rusak Ringan,Rusak Berat'],
+        'nama_barang' => ['required', 'string', 'max:255'],
+        'kategori_inventaris_id' => ['required', 'exists:kategori_inventaris,id'],
+        'lokasi_inventaris_id' => ['required', 'exists:lokasi_inventaris,id'],
+        'jumlah' => ['required', 'integer', 'min:1'],
+        'kondisi' => ['required', 'in:Baik,Rusak Ringan,Rusak Berat'],
+        'tahun_perolehan' => ['required', 'integer', 'min:1900', 'max:' . now()->year],
+        'keterangan' => ['nullable', 'string'],
     ]);
 
     $inventory->update($validated);
@@ -258,6 +331,41 @@ Route::delete('/admin/inventaris/{inventory}', function (Request $request, Inven
 
     return redirect()->route('admin.inventaris')->with('success', 'Data inventaris berhasil dihapus.');
 })->middleware('auth')->name('admin.inventaris.destroy');
+
+Route::post('/admin/lokasi', function (Request $request) use ($requireAdmin) {
+    $requireAdmin($request);
+
+    $validated = $request->validate([
+        'unit_pendidikan_id' => ['required', 'exists:unit_pendidikan,id'],
+        'nama_lokasi' => ['required', 'string', 'max:255'],
+        'keterangan' => ['nullable', 'string'],
+    ]);
+
+    LokasiInventaris::create($validated);
+
+    return redirect()->route('admin.inventaris')->with('success', 'Lokasi berhasil ditambahkan.');
+})->middleware('auth')->name('admin.lokasi.store');
+
+Route::put('/admin/lokasi/{lokasiInventaris}', function (Request $request, LokasiInventaris $lokasiInventaris) use ($requireAdmin) {
+    $requireAdmin($request);
+
+    $validated = $request->validate([
+        'unit_pendidikan_id' => ['required', 'exists:unit_pendidikan,id'],
+    ]);
+
+    $lokasiInventaris->update($validated);
+
+    return redirect()->route('admin.inventaris')->with('success', 'Unit lokasi berhasil diperbarui.');
+})->middleware('auth')->name('admin.lokasi.update');
+
+Route::delete('/admin/lokasi/{lokasiInventaris}', function (Request $request, LokasiInventaris $lokasiInventaris) use ($requireAdmin) {
+    $requireAdmin($request);
+    abort_if($lokasiInventaris->dataInventaris()->exists(), 422, 'Lokasi yang masih digunakan inventaris tidak dapat dihapus.');
+
+    $lokasiInventaris->delete();
+
+    return redirect()->route('admin.inventaris')->with('success', 'Lokasi berhasil dihapus.');
+})->middleware('auth')->name('admin.lokasi.destroy');
 
 Route::get('/login', function () {
     return view('login');
