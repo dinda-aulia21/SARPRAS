@@ -82,8 +82,10 @@ h1 span { color: var(--green); }
 .input-wrap svg { fill: none; height: 14px; stroke: #78938d; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; width: 14px; }
 .input-wrap input { background: transparent; border: 0; color: var(--ink); font: inherit; font-size: 13px; min-height: 42px; outline: 0; width: 100%; }
 .input-wrap input:-webkit-autofill, .input-wrap input:-webkit-autofill:hover, .input-wrap input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 1000px var(--mint) inset; -webkit-text-fill-color: var(--ink); transition: background-color 9999s ease-out; }
-.input-wrap .password-visibility-toggle { align-items: center; background: #fff; border: 0; border-radius: 0 6px 6px 0; color: #78938d; cursor: pointer; display: flex; flex: 0 0 34px; height: 42px; justify-content: center; margin-right: -11px; padding: 0; }
-.input-wrap .password-visibility-toggle svg { height: 15px; width: 15px; }
+.input-wrap .password-visibility-toggle { align-items: center; background: var(--mint); border: 0; border-left: 1px solid #dbeae5; border-radius: 0 6px 6px 0; color: var(--green); cursor: pointer; display: flex; flex: 0 0 34px; height: 42px; justify-content: center; margin-right: -11px; padding: 0; }
+.input-wrap .password-visibility-toggle svg { fill: none; height: 15px; stroke: var(--green); width: 15px; }
+.input-wrap .password-visibility-toggle svg path,
+.input-wrap .password-visibility-toggle svg circle { stroke: var(--green); }
 .input-wrap:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(0,143,104,.1); }
 .login-submit { background: var(--green-dark); border: 0; border-radius: 7px; color: #fff; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; margin-top: 5px; min-height: 43px; width: 100%; }
 .login-submit:hover { background: var(--green); }
