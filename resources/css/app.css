@@ -44,7 +44,15 @@ h1 span { color: var(--green); }
 .foundation-contact-heading .eyebrow { margin-bottom: 6px; }
 .foundation-contact-heading h2 { color: #164b40; font-family: Nunito, sans-serif; font-size: 25px; margin: 0 0 7px; }
 .foundation-contact-heading > p:last-child { color: #5c7874; font-size: 13px; line-height: 1.5; margin: 0; }
-.foundation-contact-grid { display: grid; gap: 17px; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 0 27px; }
+.foundation-contact-layout { display: grid; gap: 18px; grid-template-columns: minmax(250px, .95fr) minmax(0, 1.35fr); padding: 0 0 27px; }
+.foundation-contact-spotlight { align-items: flex-start; background: linear-gradient(160deg, #ffffff 0%, #f7fcf9 100%); border: 1px solid #e7efed; border-radius: 18px; box-shadow: 0 10px 30px rgba(27, 76, 66, .06); display: flex; flex-direction: column; gap: 12px; min-height: 100%; padding: 22px; }
+.foundation-contact-label { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .08em; margin: 0; text-transform: uppercase; }
+.foundation-contact-spotlight h3 { color: #164b40; font-family: Nunito, sans-serif; font-size: 22px; margin: 0; }
+.foundation-contact-spotlight p { color: #58766e; font-size: 13px; line-height: 1.65; margin: 0; }
+.foundation-contact-note { background: #eff8f3; border-left: 3px solid var(--green); border-radius: 12px; margin-top: auto; padding: 12px 14px; width: 100%; }
+.foundation-contact-note span { color: #72918a; display: block; font-size: 11px; margin-bottom: 4px; }
+.foundation-contact-note strong { color: #184f43; font-size: 14px; }
+.foundation-contact-grid { display: grid; gap: 17px; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 0 27px; }
 .foundation-contact-item { background: #fff; border: 1px solid #e7efed; border-radius: 16px; box-shadow: 0 4px 14px rgba(27, 76, 66, .045); min-height: 157px; padding: 17px 18px; }
 .foundation-contact-item h3 { color: #17644f; font-family: Nunito, sans-serif; font-size: 13px; margin: 0 0 7px; }
 .foundation-contact-item p { color: #58766e; font-size: 12px; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
@@ -175,6 +183,7 @@ h1 span { color: var(--green); }
 	.feature-card { min-height: 141px; }
 	.feature-card:nth-child(2) { transform: none; }
 	.foundation-contact { padding: 30px 20px 0; }
+	.foundation-contact-layout { grid-template-columns: 1fr; }
 	.foundation-contact-grid { gap: 17px; grid-template-columns: 1fr; }
 	.login-page { display: block; }
 	.login-visual { border-radius: 0 0 42px 42px; min-height: 310px; padding: 40px 24px; }

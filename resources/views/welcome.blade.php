@@ -65,22 +65,31 @@
                         <h2 id="foundation-contact-title">Informasi Yayasan</h2>
                         <p>Lengkapi bagian ini dengan alamat, kontak, dan informasi resmi yayasan.</p>
                     </div>
-                    <div class="foundation-contact-grid">
-                        <div class="foundation-contact-item">
-                            <h3>Alamat</h3>
+
+                    <div class="foundation-contact-layout">
+                        <article class="foundation-contact-spotlight">
+                            <p class="foundation-contact-label">Alamat Utama</p>
+                            <h3>Kantor Yayasan</h3>
                             <p>Kp, Jl. Sindangreret, Dangdeur, Kec. Bungursari, Kabupaten Purwakarta, Jawa Barat 41181</p>
-                        </div>
-                        <div class="foundation-contact-item">
-                            <h3>Kontak</h3>
-                            <p><strong>Telepon / WhatsApp</strong><br>085714673916 (A. Dede Ali)<br>081958159264 (Wiwi Suherti)</p>
-                            <p><strong>Email</strong><br>nuurudz@gmail.com</p>
-                        </div>
-                        <div class="foundation-contact-item">
-                            <h3>Media Sosial</h3>
-                            <p><strong>Instagram</strong><br>ponpes_nuurudzholaam</p>
-                            <p><strong>Facebook</strong><br>Ponpes Nuurudzholaam</p>
-                            <p><strong>YouTube</strong><br>Nuzo Tv</p>
-                            <p><strong>TikTok</strong><br>Media Nuzo</p>
+                            <div class="foundation-contact-note">
+                                <span>Pelayanan administrasi</span>
+                                <strong>terpusat di lokasi yayasan</strong>
+                            </div>
+                        </article>
+
+                        <div class="foundation-contact-grid">
+                            <div class="foundation-contact-item">
+                                <h3>Kontak</h3>
+                                <p><strong>Telepon / WhatsApp</strong><br>085714673916 (A. Dede Ali)<br>081958159264 (Wiwi Suherti)</p>
+                                <p><strong>Email</strong><br>nuurudz@gmail.com</p>
+                            </div>
+                            <div class="foundation-contact-item">
+                                <h3>Media Sosial</h3>
+                                <p><strong>Instagram</strong><br>ponpes_nuurudzholaam</p>
+                                <p><strong>Facebook</strong><br>Ponpes Nuurudzholaam</p>
+                                <p><strong>YouTube</strong><br>Nuzo Tv</p>
+                                <p><strong>TikTok</strong><br>Media Nuzo</p>
+                            </div>
                         </div>
                     </div>
                 </div>
