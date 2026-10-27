@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 use App\Models\Announcement;
@@ -263,7 +264,7 @@ Route::put('/admin/pengaturan/password', function (Request $request) {
         'password' => ['required', 'string', 'min:8', 'confirmed'],
     ]);
 
-    $request->user()->update(['password' => $validated['password']]);
+    $request->user()->update(['password' => Hash::make($validated['password'])]);
 
     return redirect()->route('admin.pengaturan')->with('password_success', 'Password berhasil diperbarui.');
 })->middleware('auth')->name('admin.pengaturan.password');
@@ -370,10 +371,19 @@ Route::post('/login', function () {
         'password' => ['required', 'string'],
     ]);
 
+    $invalidCredentialsResponse = fn () => back()->withErrors([
+        'email' => 'Email atau password yang dimasukkan salah.',
+    ])->onlyInput('email');
+
     if (! Auth::attempt($credentials, true)) {
-        return back()->withErrors([
-            'email' => 'Email atau password yang dimasukkan salah.',
-        ])->onlyInput('email');
+        $user = User::query()->where('email', $credentials['email'])->first();
+
+        if (! $user || ! hash_equals((string) $user->password, $credentials['password'])) {
+            return $invalidCredentialsResponse();
+        }
+
+        $user->update(['password' => Hash::make($credentials['password'])]);
+        Auth::login($user, true);
     }
 
     request()->session()->regenerate();
