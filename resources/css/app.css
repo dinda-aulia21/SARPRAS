@@ -40,24 +40,18 @@ h1 span { color: var(--green); }
 .card-arrow { color: var(--green); font-size: 23px; line-height: 1; }
 .foundation-contact { background: #eaf6f0; border-top: 1px solid #dcece4; padding: 38px clamp(24px, 7vw, 96px) 0; }
 .foundation-contact-inner { margin: 0 auto; max-width: 1200px; }
-.foundation-contact-heading { margin-bottom: 22px; max-width: 470px; }
+.foundation-contact-heading { margin-bottom: 24px; max-width: 760px; }
 .foundation-contact-heading .eyebrow { margin-bottom: 6px; }
 .foundation-contact-heading h2 { color: #164b40; font-family: Nunito, sans-serif; font-size: 25px; margin: 0 0 7px; }
 .foundation-contact-heading > p:last-child { color: #5c7874; font-size: 13px; line-height: 1.5; margin: 0; }
-.foundation-contact-layout { display: grid; gap: 18px; grid-template-columns: minmax(250px, .95fr) minmax(0, 1.35fr); padding: 0 0 27px; }
-.foundation-contact-spotlight { align-items: flex-start; background: linear-gradient(160deg, #ffffff 0%, #f7fcf9 100%); border: 1px solid #e7efed; border-radius: 18px; box-shadow: 0 10px 30px rgba(27, 76, 66, .06); display: flex; flex-direction: column; gap: 12px; min-height: 100%; padding: 22px; }
+.foundation-contact-layout { display: grid; gap: 24px; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 0 27px; }
+.foundation-contact-block { min-width: 0; }
 .foundation-contact-label { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .08em; margin: 0; text-transform: uppercase; }
-.foundation-contact-spotlight h3 { color: #164b40; font-family: Nunito, sans-serif; font-size: 22px; margin: 0; }
-.foundation-contact-spotlight p { color: #58766e; font-size: 13px; line-height: 1.65; margin: 0; }
-.foundation-contact-note { background: #eff8f3; border-left: 3px solid var(--green); border-radius: 12px; margin-top: auto; padding: 12px 14px; width: 100%; }
-.foundation-contact-note span { color: #72918a; display: block; font-size: 11px; margin-bottom: 4px; }
-.foundation-contact-note strong { color: #184f43; font-size: 14px; }
-.foundation-contact-grid { display: grid; gap: 17px; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 0 27px; }
-.foundation-contact-item { background: #fff; border: 1px solid #e7efed; border-radius: 16px; box-shadow: 0 4px 14px rgba(27, 76, 66, .045); min-height: 157px; padding: 17px 18px; }
-.foundation-contact-item h3 { color: #17644f; font-family: Nunito, sans-serif; font-size: 13px; margin: 0 0 7px; }
-.foundation-contact-item p { color: #58766e; font-size: 12px; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
-.foundation-contact-item p + p { margin-top: 9px; }
-.foundation-contact-item strong { color: #52766b; font-weight: 700; }
+.foundation-contact-block h3 { color: #164b40; font-family: Nunito, sans-serif; font-size: 22px; margin: 0 0 10px; }
+.foundation-contact-block p { color: #58766e; font-size: 13px; line-height: 1.6; margin: 0; overflow-wrap: anywhere; }
+.foundation-contact-block p + p { margin-top: 12px; }
+.foundation-contact-block strong { color: #315f56; font-weight: 700; }
+.foundation-contact-subnote { color: #2b6a58; font-size: 14px; font-weight: 700; margin-top: 12px; }
 .site-footer { border-top: 1px solid #d2e6dc; color: #718d84; font-size: 10px; padding: 17px 0 20px; text-align: center; }
 .site-footer span { color: var(--green); padding: 0 6px; }
 .login-page { align-items: stretch; background: #f8fbfa; display: flex; min-height: 100vh; overflow: hidden; }
@@ -185,8 +179,13 @@ h1 span { color: var(--green); }
 	.feature-card { min-height: 141px; }
 	.feature-card:nth-child(2) { transform: none; }
 	.foundation-contact { padding: 30px 20px 0; }
-	.foundation-contact-layout { grid-template-columns: 1fr; }
-	.foundation-contact-grid { gap: 17px; grid-template-columns: 1fr; }
+	.foundation-contact-heading { margin-bottom: 18px; }
+	.foundation-contact-heading h2 { font-size: 24px; }
+	.foundation-contact-heading > p:last-child { font-size: 13px; }
+	.foundation-contact-layout { gap: 20px; grid-template-columns: 1fr; }
+	.foundation-contact-label { font-size: 12px; }
+	.foundation-contact-block h3 { font-size: 20px; }
+	.foundation-contact-block p { font-size: 13px; }
 	.login-page { display: block; }
 	.login-visual { border-radius: 0 0 42px 42px; min-height: 310px; padding: 40px 24px; }
 	.login-copy h1 { font-size: 31px; }
