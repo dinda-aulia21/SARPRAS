@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\UnitPendidikan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -28,6 +29,25 @@ class ReportNavigationTest extends TestCase
             if ($type === 'cetak') {
                 $response->assertSee('Cetak Sekarang');
             }
+        }
+    }
+
+    public function test_all_roles_see_their_own_identity_and_excel_export_on_reports(): void
+    {
+        $schoolUnit = UnitPendidikan::where('nama_unit', 'SD')->firstOrFail();
+
+        foreach ([
+            ['role' => 'admin', 'unit_pendidikan_id' => null],
+            ['role' => 'kepala_yayasan', 'unit_pendidikan_id' => null],
+            ['role' => 'kepala_sekolah', 'unit_pendidikan_id' => $schoolUnit->id],
+        ] as $attributes) {
+            $user = User::factory()->create($attributes);
+
+            $this->actingAs($user)
+                ->get(route('admin.laporan'))
+                ->assertOk()
+                ->assertSee($user->name)
+                ->assertSee(route('admin.laporan.export'), false);
         }
     }
 }

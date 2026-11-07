@@ -32,8 +32,8 @@
                 </header>
                 <div class="admin-content executive-dashboard-content">
                     <section class="executive-welcome">
-                        <div class="executive-welcome-copy"><p class="welcome-eyebrow">Selamat Datang,</p><h1>{{ $dashboardTitle }}</h1><p>Pantau kondisi sarana dan prasarana Yayasan Raudhah Syarifah secara keseluruhan.</p></div>
-                        <div class="executive-welcome-note"><span>Ringkasan manajemen</span><strong>Informasi penting yayasan dalam satu tampilan.</strong></div>
+                        <div class="executive-welcome-copy"><p class="welcome-eyebrow">Selamat Datang,</p><h1>{{ $dashboardTitle }}</h1><p>@if ($user->role === 'kepala_sekolah' && $user->unitPendidikan) Pantau kondisi sarana dan prasarana Unit {{ $user->unitPendidikan->nama_unit }}. @else Pantau kondisi sarana dan prasarana Yayasan Raudhah Syarifah secara keseluruhan. @endif</p></div>
+                        <div class="executive-welcome-note"><span>Ringkasan manajemen</span><strong>@if ($user->role === 'kepala_sekolah' && $user->unitPendidikan) Informasi inventaris Unit {{ $user->unitPendidikan->nama_unit }} dalam satu tampilan. @else Informasi penting yayasan dalam satu tampilan. @endif</strong></div>
                     </section>
                     <section class="stat-grid executive-stat-grid" aria-label="Ringkasan inventaris">
                         <article class="stat-card stat-total"><span class="stat-icon">▣</span><div><p>Total Inventaris</p><strong>{{ number_format($totalQuantity, 0, ',', '.') }}</strong><small>Jumlah seluruh unit</small></div><span class="stat-trend">{{ $categorySummaries->count() }} kategori</span></article>

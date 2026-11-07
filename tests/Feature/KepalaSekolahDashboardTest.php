@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\UnitPendidikan;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -9,12 +10,17 @@ class KepalaSekolahDashboardTest extends TestCase
 {
     public function test_school_head_can_open_their_dashboard(): void
     {
-        $schoolHead = User::factory()->create(['role' => 'kepala_sekolah']);
+        $schoolUnit = UnitPendidikan::where('nama_unit', 'SD')->firstOrFail();
+        $schoolHead = User::factory()->create([
+            'role' => 'kepala_sekolah',
+            'unit_pendidikan_id' => $schoolUnit->id,
+        ]);
 
         $this->actingAs($schoolHead)
             ->get(route('kepala-sekolah.dashboard'))
             ->assertOk()
-            ->assertSee('Kepala Sekolah');
+            ->assertSee('Kepala Sekolah')
+            ->assertSee('Unit SD');
     }
 
     public function test_school_head_login_redirects_to_their_dashboard(): void
