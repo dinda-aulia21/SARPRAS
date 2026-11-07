@@ -32,7 +32,7 @@
             <main class="admin-main">
                 <header class="admin-topbar">
                     <button class="sidebar-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="false" aria-label="Buka navigasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-                    <div class="admin-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input type="search" placeholder="Cari inventaris, kategori, atau lokasi..." aria-label="Cari inventaris"></div>
+                    <form class="admin-search" action="{{ route('admin.inventaris') }}" method="get" role="search"><button type="submit" aria-label="Cari" style="all: unset; appearance: none; background: transparent; border: 0; border-radius: 0; box-shadow: none; cursor: pointer; display: inline-flex; flex: 0 0 auto; padding: 0;"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></button><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari inventaris, kategori, atau lokasi..." aria-label="Cari inventaris"></form>
                     <div class="topbar-actions"><button class="icon-button notification-button" type="button" aria-label="Notifikasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span></span></button><div class="date-label"><strong>Selasa, 23 September 2025</strong><small>10:34 WIB</small></div><button class="account-button" type="button"><span class="mini-avatar">A</span><span>Admin</span><span class="chevron">⌄</span></button></div>
                 </header>
                 <div class="admin-content">

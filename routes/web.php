@@ -47,7 +47,7 @@ $executiveDashboard = function (Request $request, string $dashboardTitle) use ($
         ->pluck('total', 'condition_value');
     $categorySummaries = Inventory::query()->tap(fn ($query) => $scopeToUserUnit($query, $request->user()))
         ->join('kategori_inventaris', 'data_inventaris.kategori_inventaris_id', '=', 'kategori_inventaris.id')
-        ->selectRaw('kategori_inventaris.nama_kategori as category, SUM(data_inventaris.jumlah) as total')
+        ->selectRaw('kategori_inventaris.nama_kategori as category_name, SUM(data_inventaris.jumlah) as total')
         ->groupBy('kategori_inventaris.nama_kategori')
         ->orderByDesc('total')
         ->get();
@@ -83,11 +83,12 @@ $executiveDashboard = function (Request $request, string $dashboardTitle) use ($
         'minorPercentage' => $percentageOf($totalMinor),
         'majorPercentage' => $percentageOf($totalMajor),
         'categorySummaries' => $categorySummaries,
+        'categoryColors' => $categoryColors,
         'categoryGradient' => 'conic-gradient(' . implode(', ', $categoryStops) . ')',
         'locationSummaries' => Inventory::query()
             ->tap(fn ($query) => $scopeToUserUnit($query, $request->user()))
             ->join('lokasi_inventaris', 'data_inventaris.lokasi_inventaris_id', '=', 'lokasi_inventaris.id')
-            ->selectRaw('lokasi_inventaris.nama_lokasi as location, SUM(data_inventaris.jumlah) as total')
+            ->selectRaw('lokasi_inventaris.nama_lokasi as location_name, SUM(data_inventaris.jumlah) as total')
             ->groupBy('lokasi_inventaris.nama_lokasi')
             ->orderByDesc('total')
             ->take(3)
@@ -133,9 +134,29 @@ Route::get('/admin/inventaris', function (Request $request) use ($scopeToUserUni
             ->orWhereHas('kategoriInventaris', fn ($category) => $category->where('nama_kategori', 'like', '%' . $request->input('search') . '%'))
             ->orWhereHas('lokasiInventaris', fn ($location) => $location->where('nama_lokasi', 'like', '%' . $request->input('search') . '%')))
         )
-        ->when($request->filled('category'), fn ($query) => $query->where('kategori_inventaris_id', $request->input('category')))
-        ->when($request->filled('location'), fn ($query) => $query->where('lokasi_inventaris_id', $request->input('location')))
-        ->when($request->filled('condition'), fn ($query) => $query->where('kondisi', $request->input('condition')))
+        ->when($request->filled('category'), function ($query) use ($request) {
+            $category = $request->input('category');
+
+            $query->where(function ($filter) use ($category) {
+                if (ctype_digit((string) $category)) {
+                    $filter->where('kategori_inventaris_id', $category);
+                } else {
+                    $filter->whereHas('kategoriInventaris', fn ($related) => $related->where('nama_kategori', 'like', '%' . $category . '%'));
+                }
+            });
+        })
+        ->when($request->filled('location'), function ($query) use ($request) {
+            $location = $request->input('location');
+
+            $query->where(function ($filter) use ($location) {
+                if (ctype_digit((string) $location)) {
+                    $filter->where('lokasi_inventaris_id', $location);
+                } else {
+                    $filter->whereHas('lokasiInventaris', fn ($related) => $related->where('nama_lokasi', 'like', '%' . $location . '%'));
+                }
+            });
+        })
+        ->when($request->filled('condition'), fn ($query) => $query->where('kondisi', 'like', '%' . $request->input('condition') . '%'))
         ->latest()
         ->get();
 
@@ -182,6 +203,99 @@ Route::get('/admin/laporan', function (Request $request) use ($scopeToUserUnit) 
         'type' => $type,
     ]);
 })->middleware('auth')->name('admin.laporan');
+
+Route::get('/admin/laporan/export', function (Request $request) use ($scopeToUserUnit) {
+    $user = $request->user();
+    $inventories = Inventory::query()
+        ->with(['kategoriInventaris', 'lokasiInventaris.unitPendidikan'])
+        ->tap(fn ($query) => $scopeToUserUnit($query, $user))
+        ->when($request->filled('year'), fn ($query) => $query->where('tahun_perolehan', $request->input('year')))
+        ->when($request->filled('category'), fn ($query) => $query->where('kategori_inventaris_id', $request->input('category')))
+        ->when($request->filled('location'), fn ($query) => $query->where('lokasi_inventaris_id', $request->input('location')))
+        ->when($request->filled('condition'), fn ($query) => $query->where('kondisi', $request->input('condition')))
+        ->latest()
+        ->get();
+
+    $rows = [
+        ['No', 'Kode Barang', 'Nama Barang', 'Kategori', 'Lokasi', 'Jumlah', 'Kondisi', 'Tahun Perolehan'],
+    ];
+    foreach ($inventories as $index => $inventory) {
+        $rows[] = [
+            $index + 1,
+            $inventory->kode_barang,
+            $inventory->name,
+            $inventory->category,
+            $inventory->location,
+            $inventory->quantity,
+            $inventory->condition,
+            $inventory->tahun_perolehan ?? '',
+        ];
+    }
+
+    $columnName = static function (int $number): string {
+        $name = '';
+        while ($number > 0) {
+            $number--;
+            $name = chr(65 + ($number % 26)) . $name;
+            $number = intdiv($number, 26);
+        }
+
+        return $name;
+    };
+    $worksheetRows = '';
+    foreach ($rows as $rowIndex => $row) {
+        $excelRow = $rowIndex + 1;
+        $cells = '';
+        foreach ($row as $columnIndex => $value) {
+            $cellReference = $columnName($columnIndex + 1) . $excelRow;
+            if (is_int($value)) {
+                $cells .= '<c r="' . $cellReference . '"><v>' . $value . '</v></c>';
+                continue;
+            }
+
+            $escapedValue = htmlspecialchars((string) $value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+            $cells .= '<c r="' . $cellReference . '" t="inlineStr"><is><t xml:space="preserve">' . $escapedValue . '</t></is></c>';
+        }
+        $worksheetRows .= '<row r="' . $excelRow . '">' . $cells . '</row>';
+    }
+
+    $worksheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        . '<sheetData>' . $worksheetRows . '</sheetData></worksheet>';
+    $tempPath = tempnam(sys_get_temp_dir(), 'sarpras-report-');
+    if ($tempPath === false) {
+        abort(500, 'File Excel tidak dapat dibuat.');
+    }
+    $archive = new \ZipArchive();
+    if ($archive->open($tempPath, \ZipArchive::OVERWRITE) !== true) {
+        @unlink($tempPath);
+        abort(500, 'File Excel tidak dapat dibuat.');
+    }
+    $archive->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        . '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        . '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        . '<Default Extension="xml" ContentType="application/xml"/>'
+        . '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+        . '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+        . '</Types>');
+    $archive->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+        . '</Relationships>');
+    $archive->addFromString('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        . '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+        . '<sheets><sheet name="Laporan Inventaris" sheetId="1" r:id="rId1"/></sheets></workbook>');
+    $archive->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+        . '</Relationships>');
+    $archive->addFromString('xl/worksheets/sheet1.xml', $worksheet);
+    $archive->close();
+
+    return response()->download($tempPath, 'laporan-inventaris.xlsx', [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ])->deleteFileAfterSend(true);
+})->middleware('auth')->name('admin.laporan.export');
 
 Route::get('/admin/pengaturan', function (Request $request) {
     return view('pengaturan', ['user' => $request->user()]);
@@ -287,13 +401,28 @@ Route::post('/admin/inventaris', function (Request $request) use ($requireAdmin)
 
     $validated = $request->validate([
         'nama_barang' => ['required', 'string', 'max:255'],
-        'kategori_inventaris_id' => ['required', 'exists:kategori_inventaris,id'],
-        'lokasi_inventaris_id' => ['required', 'exists:lokasi_inventaris,id'],
+        'kategori_inventaris_id' => ['nullable', 'exists:kategori_inventaris,id'],
+        'kategori_nama' => ['required', 'string', 'max:255'],
+        'lokasi_inventaris_id' => ['nullable', 'exists:lokasi_inventaris,id'],
+        'lokasi_nama' => ['required', 'string', 'max:255'],
         'jumlah' => ['required', 'integer', 'min:1'],
-        'kondisi' => ['required', 'in:Baik,Rusak Ringan,Rusak Berat'],
+        'kondisi' => ['required', 'string', 'max:100'],
         'tahun_perolehan' => ['required', 'integer', 'min:1900', 'max:' . now()->year],
         'keterangan' => ['nullable', 'string'],
     ]);
+
+    $category = filled($validated['kategori_inventaris_id'] ?? null)
+        ? KategoriInventaris::findOrFail($validated['kategori_inventaris_id'])
+        : KategoriInventaris::firstOrCreate(['nama_kategori' => trim($validated['kategori_nama'])]);
+    $location = filled($validated['lokasi_inventaris_id'] ?? null)
+        ? LokasiInventaris::findOrFail($validated['lokasi_inventaris_id'])
+        : LokasiInventaris::firstOrCreate([
+            'unit_pendidikan_id' => null,
+            'nama_lokasi' => trim($validated['lokasi_nama']),
+        ]);
+    $validated['kategori_inventaris_id'] = $category->id;
+    $validated['lokasi_inventaris_id'] = $location->id;
+    unset($validated['kategori_nama'], $validated['lokasi_nama']);
 
     Inventory::create($validated);
 
@@ -305,13 +434,28 @@ Route::put('/admin/inventaris/{inventory}', function (Request $request, Inventor
 
     $validated = $request->validate([
         'nama_barang' => ['required', 'string', 'max:255'],
-        'kategori_inventaris_id' => ['required', 'exists:kategori_inventaris,id'],
-        'lokasi_inventaris_id' => ['required', 'exists:lokasi_inventaris,id'],
+        'kategori_inventaris_id' => ['nullable', 'exists:kategori_inventaris,id'],
+        'kategori_nama' => ['required', 'string', 'max:255'],
+        'lokasi_inventaris_id' => ['nullable', 'exists:lokasi_inventaris,id'],
+        'lokasi_nama' => ['required', 'string', 'max:255'],
         'jumlah' => ['required', 'integer', 'min:1'],
-        'kondisi' => ['required', 'in:Baik,Rusak Ringan,Rusak Berat'],
+        'kondisi' => ['required', 'string', 'max:100'],
         'tahun_perolehan' => ['required', 'integer', 'min:1900', 'max:' . now()->year],
         'keterangan' => ['nullable', 'string'],
     ]);
+
+    $category = filled($validated['kategori_inventaris_id'] ?? null)
+        ? KategoriInventaris::findOrFail($validated['kategori_inventaris_id'])
+        : KategoriInventaris::firstOrCreate(['nama_kategori' => trim($validated['kategori_nama'])]);
+    $location = filled($validated['lokasi_inventaris_id'] ?? null)
+        ? LokasiInventaris::findOrFail($validated['lokasi_inventaris_id'])
+        : LokasiInventaris::firstOrCreate([
+            'unit_pendidikan_id' => null,
+            'nama_lokasi' => trim($validated['lokasi_nama']),
+        ]);
+    $validated['kategori_inventaris_id'] = $category->id;
+    $validated['lokasi_inventaris_id'] = $location->id;
+    unset($validated['kategori_nama'], $validated['lokasi_nama']);
 
     $inventory->update($validated);
 

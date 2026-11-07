@@ -27,7 +27,7 @@
             <main class="admin-main">
                 <header class="admin-topbar">
                     <button class="sidebar-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="false" aria-label="Buka navigasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-                    <div class="admin-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input type="search" placeholder="Cari inventaris, kategori, atau lokasi..." aria-label="Cari inventaris"></div>
+                    <form class="admin-search" action="{{ route('admin.inventaris') }}" method="get" role="search"><button type="submit" aria-label="Cari" style="all: unset; appearance: none; background: transparent; border: 0; border-radius: 0; box-shadow: none; cursor: pointer; display: inline-flex; flex: 0 0 auto; padding: 0;"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></button><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari inventaris, kategori, atau lokasi..." aria-label="Cari inventaris"></form>
                     <div class="topbar-actions"><button class="icon-button notification-button" type="button" aria-label="Notifikasi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span></span></button><div class="date-label"><strong>{{ now()->translatedFormat('l, d F Y') }}</strong><small>{{ now()->format('H:i') }} WIB</small></div><button class="account-button" type="button"><span class="mini-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</span><span>{{ $user->name }}</span><span class="chevron">⌄</span></button></div>
                 </header>
                 <div class="admin-content executive-dashboard-content">
@@ -51,7 +51,8 @@
                                         <ul class="category-list executive-category-list">
                                             @foreach ($categorySummaries as $index => $category)
                                                 @php($categoryPercentage = $totalQuantity > 0 ? round(($category->total / $totalQuantity) * 100, 1) : 0)
-                                                <li><span><i class="dot" style="background: {{ ['#3288d1', '#15936e', '#f1bd35', '#8158c6', '#e56983'][$index % 5] }}"></i>{{ $category->category }}</span><strong>{{ number_format($category->total, 0, ',', '.') }} ({{ number_format($categoryPercentage, 1, ',', '.') }}%)</strong></li>
+                                                @php($categoryColor = $categoryColors[$index % count($categoryColors)])
+                                                <li><span><i class="dot" style="background: {{ $categoryColor }}"></i>{{ $category->category_name }}</span><strong style="color: {{ $categoryColor }}">{{ number_format($category->total, 0, ',', '.') }} ({{ number_format($categoryPercentage, 1, ',', '.') }}%)</strong></li>
                                             @endforeach
                                         </ul>
                                     @else
@@ -85,11 +86,11 @@
                                 @endif
                             </article>
                             <article class="dashboard-panel executive-panel executive-location-panel" id="lokasi">
-                                <div class="panel-heading"><div><p class="panel-kicker">Sebaran inventaris</p><h2>Informasi Singkat</h2></div><span class="executive-location-mark" aria-hidden="true">⌖</span></div>
+                                <div class="panel-heading"><div><p class="panel-kicker">3 lokasi dengan unit terbanyak</p><h2>Jumlah Inventaris per Lokasi</h2></div><span class="executive-location-mark" aria-hidden="true">⌖</span></div>
                                 @if ($locationSummaries->isNotEmpty())
                                     <ul class="executive-location-list">
                                         @foreach ($locationSummaries as $location)
-                                            <li><span>{{ $location->location }}</span><strong>{{ number_format($location->total, 0, ',', '.') }} unit</strong></li>
+                                            <li><span class="executive-location-name">Jumlah inventaris di {{ $location->location_name }}</span><strong class="executive-location-total">{{ number_format($location->total, 0, ',', '.') }} unit</strong></li>
                                         @endforeach
                                     </ul>
                                 @else

@@ -33,8 +33,49 @@
                         <div class="inventory-alert inventory-alert-error" role="alert">Periksa kembali data inventaris yang diisi.</div>
                     @endif
                     <section class="inventory-summary" aria-label="Ringkasan data inventaris"><article><span class="summary-icon summary-green">▣</span><div><small>Total Barang</small><strong>0</strong></div></article><article><span class="summary-icon summary-blue">✓</span><div><small>Kondisi Baik</small><strong>0</strong></div></article><article><span class="summary-icon summary-yellow">!</span><div><small>Rusak Ringan</small><strong>0</strong></div></article><article><span class="summary-icon summary-red">!</span><div><small>Rusak Berat</small><strong>0</strong></div></article></section>
-                    <div class="inventory-modal" data-inventory-modal aria-hidden="true"><div class="inventory-modal-backdrop" data-close-inventory-modal></div><section class="inventory-modal-content" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title"><div class="inventory-modal-heading"><div><p class="panel-kicker">Data baru</p><h2 id="inventory-modal-title">Tambah Inventaris</h2></div><button class="inventory-modal-close" type="button" aria-label="Tutup" data-close-inventory-modal>&times;</button></div><form action="{{ route('admin.inventaris.store') }}" method="post" class="inventory-form">@csrf<div class="inventory-form-grid"><label>Nama Barang<input name="nama_barang" type="text" value="{{ old('nama_barang') }}" required></label><label>Kategori<select name="kategori_inventaris_id" required><option value="">Pilih kategori</option>@foreach ($categories as $category)<option value="{{ $category->id }}">{{ $category->nama_kategori }}</option>@endforeach</select></label><label>Lokasi<select name="lokasi_inventaris_id" required><option value="">Pilih lokasi</option>@foreach ($locations as $location)<option value="{{ $location->id }}">{{ $location->nama_lokasi }}{{ $location->unitPendidikan ? ' - '.$location->unitPendidikan->nama_unit : ' - Belum ditentukan' }}</option>@endforeach</select></label><label>Jumlah<input name="jumlah" type="number" min="1" value="{{ old('jumlah', 1) }}" required></label><label>Kondisi<select name="kondisi" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select></label><label>Tahun Perolehan<input name="tahun_perolehan" type="number" min="1900" max="{{ now()->year }}" value="{{ old('tahun_perolehan', now()->year) }}" required></label><label>Keterangan<input name="keterangan" value="{{ old('keterangan') }}"></label></div><div class="inventory-form-actions"><button class="inventory-secondary-button" type="button" data-close-inventory-modal>Batal</button><button class="inventory-primary-button" type="submit">Simpan Inventaris</button></div></form></section></div>
-                    <section class="inventory-table-panel dashboard-panel"><div class="inventory-toolbar"><div><p class="panel-kicker">Daftar sarana dan prasarana</p><h2>Semua Inventaris <span>{{ $inventories->count() }} data</span></h2></div><form class="inventory-actions" action="{{ route('admin.inventaris') }}" method="get"><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari nama barang" aria-label="Cari nama barang"><label class="filter-control"><span>Kategori</span><select name="category"><option value="">Semua Kategori</option>@foreach ($categories as $category)<option value="{{ $category->id }}" @selected(request('category') == $category->id)>{{ $category->nama_kategori }}</option>@endforeach</select></label><label class="filter-control"><span>Lokasi</span><select name="location"><option value="">Semua Lokasi</option>@foreach ($locations as $location)<option value="{{ $location->id }}" @selected(request('location') == $location->id)>{{ $location->nama_lokasi }}</option>@endforeach</select></label><label class="filter-control"><span>Kondisi</span><select name="condition"><option value="">Semua Kondisi</option>@foreach (['Baik', 'Rusak Ringan', 'Rusak Berat'] as $condition)<option @selected(request('condition') === $condition)>{{ $condition }}</option>@endforeach</select></label><button class="filter-button" type="submit" aria-label="Terapkan filter">Filter</button></form></div><div class="full-inventory-table inventory-data-table"><table><thead><tr><th><input type="checkbox" aria-label="Pilih semua"></th><th>No</th><th>Nama Barang</th><th>Kategori</th><th>Lokasi</th><th>Jumlah</th><th>Kondisi</th><th>Terakhir Diperbarui</th><th>Aksi</th></tr></thead><tbody></tbody></table></div><div class="inventory-footer"><span>Menampilkan <strong>1-5</strong> dari <strong>0</strong> data</span><div><button type="button" disabled>←</button><button class="current-page" type="button">1</button><button type="button" disabled>→</button></div></div></section>
+                    <div class="inventory-modal" data-inventory-modal aria-hidden="true">
+                        <div class="inventory-modal-backdrop" data-close-inventory-modal></div>
+                        <section class="inventory-modal-content" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title">
+                            <div class="inventory-modal-heading">
+                                <div><p class="panel-kicker">Data baru</p><h2 id="inventory-modal-title">Tambah Inventaris</h2></div>
+                                <button class="inventory-modal-close" type="button" aria-label="Tutup" data-close-inventory-modal>&times;</button>
+                            </div>
+                            <form action="{{ route('admin.inventaris.store') }}" method="post" class="inventory-form">
+                                @csrf
+                                <div class="inventory-form-grid">
+                                    <label>Nama Barang<input name="nama_barang" type="text" value="{{ old('nama_barang') }}" required></label>
+                                    <label>Kategori
+                                        <span class="inventory-combobox">
+                                            <input type="text" name="kategori_nama" data-inventory-reference="category" value="{{ $categories->firstWhere('id', old('kategori_inventaris_id'))?->nama_kategori ?? old('kategori_nama') }}" placeholder="Ketik nama kategori..." autocomplete="off" required>
+                                            <button class="inventory-combobox-toggle" type="button" aria-label="Tampilkan pilihan kategori" aria-expanded="false"></button>
+                                            <input type="hidden" name="kategori_inventaris_id" value="{{ old('kategori_inventaris_id') }}">
+                                            <span class="inventory-combobox-options" hidden>@foreach ($categories as $category)<button type="button" data-option-id="{{ $category->id }}">{{ $category->nama_kategori }}</button>@endforeach</span>
+                                        </span>
+                                    </label>
+                                    <label>Lokasi
+                                        <span class="inventory-combobox">
+                                            <input type="text" name="lokasi_nama" data-inventory-reference="location" value="{{ $locations->firstWhere('id', old('lokasi_inventaris_id'))?->nama_lokasi }}{{ old('lokasi_inventaris_id') && $locations->firstWhere('id', old('lokasi_inventaris_id'))?->unitPendidikan ? ' - '.$locations->firstWhere('id', old('lokasi_inventaris_id'))->unitPendidikan->nama_unit : (old('lokasi_inventaris_id') ? ' - Belum ditentukan' : '') }}{{ old('lokasi_inventaris_id') ? '' : old('lokasi_nama') }}" placeholder="Ketik nama lokasi..." autocomplete="off" required>
+                                            <button class="inventory-combobox-toggle" type="button" aria-label="Tampilkan pilihan lokasi" aria-expanded="false"></button>
+                                            <input type="hidden" name="lokasi_inventaris_id" value="{{ old('lokasi_inventaris_id') }}">
+                                            <span class="inventory-combobox-options" hidden>@foreach ($locations as $location)<button type="button" data-option-id="{{ $location->id }}">{{ $location->nama_lokasi }}{{ $location->unitPendidikan ? ' - '.$location->unitPendidikan->nama_unit : ' - Belum ditentukan' }}</button>@endforeach</span>
+                                        </span>
+                                    </label>
+                                    <label>Jumlah<input name="jumlah" type="number" min="1" value="{{ old('jumlah', 1) }}" required></label>
+                                    <label>Kondisi
+                                        <span class="inventory-combobox">
+                                            <input name="kondisi" type="text" data-inventory-condition value="{{ old('kondisi') }}" placeholder="Ketik kondisi..." autocomplete="off" maxlength="100" required>
+                                            <button class="inventory-combobox-toggle" type="button" aria-label="Tampilkan pilihan kondisi" aria-expanded="false"></button>
+                                            <span class="inventory-combobox-options" hidden><button type="button">Baik</button><button type="button">Rusak Ringan</button><button type="button">Rusak Berat</button></span>
+                                        </span>
+                                    </label>
+                                    <label>Tahun Perolehan<input name="tahun_perolehan" type="number" min="1900" max="{{ now()->year }}" value="{{ old('tahun_perolehan', now()->year) }}" required></label>
+                                    <label>Keterangan<input name="keterangan" value="{{ old('keterangan') }}"></label>
+                                </div>
+                                <div class="inventory-form-actions"><button class="inventory-secondary-button" type="button" data-close-inventory-modal>Batal</button><button class="inventory-primary-button" type="submit">Simpan Inventaris</button></div>
+                            </form>
+                        </section>
+                    </div>
+                    <section class="inventory-table-panel dashboard-panel"><div class="inventory-toolbar"><div><p class="panel-kicker">Daftar sarana dan prasarana</p><h2>Semua Inventaris <span>{{ $inventories->count() }} data</span></h2></div><form class="inventory-actions" action="{{ route('admin.inventaris') }}" method="get"><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari nama barang" aria-label="Cari nama barang"><label class="filter-control"><span>Kategori</span><input type="search" name="category" list="inventory-categories" value="{{ $categories->firstWhere('id', request('category'))?->nama_kategori ?? request('category') }}" placeholder="Semua Kategori" aria-label="Cari kategori"><datalist id="inventory-categories"><option value="">Semua Kategori</option>@foreach ($categories as $category)<option value="{{ $category->nama_kategori }}"></option>@endforeach</datalist></label><label class="filter-control"><span>Lokasi</span><input type="search" name="location" list="inventory-locations" value="{{ $locations->firstWhere('id', request('location'))?->nama_lokasi ?? request('location') }}" placeholder="Semua Lokasi" aria-label="Cari lokasi"><datalist id="inventory-locations"><option value="">Semua Lokasi</option>@foreach ($locations as $location)<option value="{{ $location->nama_lokasi }}"></option>@endforeach</datalist></label><label class="filter-control"><span>Kondisi</span><input type="search" name="condition" list="inventory-conditions" value="{{ request('condition') }}" placeholder="Semua Kondisi" aria-label="Cari kondisi"><datalist id="inventory-conditions"><option value="Baik"></option><option value="Rusak Ringan"></option><option value="Rusak Berat"></option></datalist></label><button class="filter-button" type="submit" aria-label="Terapkan filter">Filter</button></form></div><div class="full-inventory-table inventory-data-table"><table><thead><tr><th><input type="checkbox" aria-label="Pilih semua"></th><th>No</th><th>Nama Barang</th><th>Kategori</th><th>Lokasi</th><th>Jumlah</th><th>Kondisi</th><th>Terakhir Diperbarui</th><th>Aksi</th></tr></thead><tbody></tbody></table></div><div class="inventory-footer"><span>Menampilkan <strong>1-5</strong> dari <strong>0</strong> data</span><div><button type="button" disabled>←</button><button class="current-page" type="button">1</button><button type="button" disabled>→</button></div></div></section>
                 </div>
             </main>
         </div>
@@ -59,6 +100,91 @@
                 const inventoryForm = document.querySelector('.inventory-form');
                 const inventoryFormTitle = inventoryModal?.querySelector('.inventory-modal-heading h2');
                 const inventoryFormSubmit = inventoryForm?.querySelector('[type="submit"]');
+                const inventoryReferenceInputs = Array.from(inventoryForm?.querySelectorAll('[data-inventory-reference]') ?? []);
+                const inventoryConditionInput = inventoryForm?.querySelector('[data-inventory-condition]');
+                const inventoryComboboxes = Array.from(inventoryForm?.querySelectorAll('.inventory-combobox') ?? []);
+                const syncInventoryReference = (input) => {
+                    const key = input.dataset.inventoryReference;
+                    const hiddenInput = inventoryForm.elements.namedItem(key === 'category' ? 'kategori_inventaris_id' : 'lokasi_inventaris_id');
+                    const selectedOption = Array.from(input.parentElement.querySelectorAll('[data-option-id]')).find((option) => option.textContent.trim().toLocaleLowerCase() === input.value.trim().toLocaleLowerCase());
+                    hiddenInput.value = selectedOption?.dataset.optionId ?? '';
+                    input.setCustomValidity('');
+                };
+                const setInventoryReference = (key, id) => {
+                    const input = inventoryForm.querySelector(`[data-inventory-reference="${key}"]`);
+                    const hiddenInput = inventoryForm.elements.namedItem(key === 'category' ? 'kategori_inventaris_id' : 'lokasi_inventaris_id');
+                    const option = Array.from(input.parentElement.querySelectorAll('[data-option-id]')).find((candidate) => candidate.dataset.optionId === String(id));
+                    input.value = option?.textContent.trim() ?? '';
+                    hiddenInput.value = option?.dataset.optionId ?? '';
+                    syncInventoryReference(input);
+                };
+                const filterInventoryOptions = (input, showAll = false) => {
+                    const options = input.parentElement.querySelector('.inventory-combobox-options');
+                    const search = input.value.trim().toLocaleLowerCase();
+                    let visibleCount = 0;
+                    options.querySelectorAll('button').forEach((option) => {
+                        const matches = showAll || !search || option.textContent.trim().toLocaleLowerCase().includes(search);
+                        option.hidden = !matches;
+                        if (matches) visibleCount += 1;
+                    });
+                    options.hidden = visibleCount === 0;
+                    input.parentElement.querySelector('.inventory-combobox-toggle').setAttribute('aria-expanded', String(!options.hidden));
+                };
+                inventoryReferenceInputs.forEach((input) => {
+                    input.addEventListener('input', () => {
+                        syncInventoryReference(input);
+                        filterInventoryOptions(input);
+                    });
+                    input.addEventListener('focus', () => filterInventoryOptions(input, true));
+                    syncInventoryReference(input);
+                });
+                const syncInventoryCondition = () => {
+                    const options = inventoryConditionInput.parentElement.querySelector('.inventory-combobox-options');
+                    const selectedCondition = Array.from(options.querySelectorAll('button')).find((option) => option.textContent.trim().toLocaleLowerCase() === inventoryConditionInput.value.trim().toLocaleLowerCase());
+                    if (selectedCondition) inventoryConditionInput.value = selectedCondition.textContent.trim();
+                    inventoryConditionInput.setCustomValidity('');
+                };
+                inventoryConditionInput?.addEventListener('input', () => {
+                    syncInventoryCondition();
+                    filterInventoryOptions(inventoryConditionInput);
+                });
+                inventoryConditionInput?.addEventListener('focus', () => filterInventoryOptions(inventoryConditionInput, true));
+                syncInventoryCondition();
+                inventoryComboboxes.forEach((combobox) => {
+                    const input = combobox.querySelector('input:not([type="hidden"])');
+                    const options = combobox.querySelector('.inventory-combobox-options');
+                    const toggle = combobox.querySelector('.inventory-combobox-toggle');
+                    options.querySelectorAll('button').forEach((option) => {
+                        option.addEventListener('mousedown', (event) => event.preventDefault());
+                        option.addEventListener('click', () => {
+                            input.value = option.textContent.trim();
+                            if (input.hasAttribute('data-inventory-reference')) {
+                                syncInventoryReference(input);
+                            } else {
+                                syncInventoryCondition();
+                            }
+                            filterInventoryOptions(input, true);
+                            options.hidden = true;
+                            toggle.setAttribute('aria-expanded', 'false');
+                        });
+                    });
+                    toggle.addEventListener('mousedown', (event) => event.preventDefault());
+                    toggle.addEventListener('click', () => {
+                        if (options.hidden) {
+                            input.focus();
+                            filterInventoryOptions(input, true);
+                        } else {
+                            options.hidden = true;
+                            toggle.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                    input.addEventListener('blur', () => {
+                        window.setTimeout(() => {
+                            options.hidden = true;
+                            toggle.setAttribute('aria-expanded', 'false');
+                        }, 120);
+                    });
+                });
                 const methodInput = document.createElement('input');
                 methodInput.type = 'hidden';
                 methodInput.name = '_method';
@@ -68,6 +194,12 @@
 
                 const setInventoryForm = (inventory = null) => {
                     inventoryForm?.reset();
+                    inventoryReferenceInputs.forEach(syncInventoryReference);
+                    syncInventoryCondition();
+                    inventoryComboboxes.forEach((combobox) => {
+                        combobox.querySelector('.inventory-combobox-options').hidden = true;
+                        combobox.querySelector('.inventory-combobox-toggle').setAttribute('aria-expanded', 'false');
+                    });
                     inventoryForm.action = inventory ? `${inventoryBaseUrl}/${inventory.id}` : inventoryBaseUrl;
                     methodInput.disabled = !inventory;
                     inventoryFormTitle.textContent = inventory ? 'Ubah Inventaris' : 'Tambah Inventaris';
@@ -75,10 +207,11 @@
 
                     if (inventory) {
                         inventoryForm.elements.namedItem('nama_barang').value = inventory.nama_barang;
-                        inventoryForm.elements.namedItem('kategori_inventaris_id').value = inventory.kategori_inventaris_id;
-                        inventoryForm.elements.namedItem('lokasi_inventaris_id').value = inventory.lokasi_inventaris_id;
+                        setInventoryReference('category', inventory.kategori_inventaris_id);
+                        setInventoryReference('location', inventory.lokasi_inventaris_id);
                         inventoryForm.elements.namedItem('jumlah').value = inventory.jumlah;
                         inventoryForm.elements.namedItem('kondisi').value = inventory.kondisi;
+                        syncInventoryCondition();
                         inventoryForm.elements.namedItem('tahun_perolehan').value = inventory.tahun_perolehan;
                         inventoryForm.elements.namedItem('keterangan').value = inventory.keterangan ?? '';
                     }
@@ -131,7 +264,7 @@
 
                 const inventoryDetailDialog = document.createElement('dialog');
                 inventoryDetailDialog.className = 'inventory-detail-dialog';
-                inventoryDetailDialog.innerHTML = '<form method="dialog"><div class="inventory-modal-heading"><h2>Detail Inventaris</h2><button class="inventory-modal-close" type="submit" aria-label="Tutup">&times;</button></div><dl><div><dt>Kode Barang</dt><dd data-detail-code></dd></div><div><dt>Nama Barang</dt><dd data-detail-name></dd></div><div><dt>Kategori</dt><dd data-detail-category></dd></div><div><dt>Lokasi</dt><dd data-detail-location></dd></div><div><dt>Jumlah</dt><dd data-detail-quantity></dd></div><div><dt>Kondisi</dt><dd data-detail-condition></dd></div></dl></form>';
+                inventoryDetailDialog.innerHTML = '<form method="dialog"><header class="inventory-detail-heading"><div><p>Informasi barang</p><h2>Detail Inventaris</h2></div><button class="inventory-detail-close" type="submit" aria-label="Tutup">&times;</button></header><dl class="inventory-detail-grid"><div class="inventory-detail-item inventory-detail-name"><dt>Nama Barang</dt><dd data-detail-name></dd></div><div class="inventory-detail-item"><dt>Kode Barang</dt><dd data-detail-code></dd></div><div class="inventory-detail-item"><dt>Kategori</dt><dd data-detail-category></dd></div><div class="inventory-detail-item"><dt>Lokasi</dt><dd data-detail-location></dd></div><div class="inventory-detail-item"><dt>Jumlah</dt><dd data-detail-quantity></dd></div><div class="inventory-detail-item"><dt>Kondisi</dt><dd data-detail-condition></dd></div></dl><footer class="inventory-detail-footer"><span>Yayasan Raudhah Syarifah</span><button class="inventory-detail-done" type="submit">Tutup</button></footer></form>';
                 document.body.append(inventoryDetailDialog);
 
                 const inventoryRows = Array.from(inventoryBody?.querySelectorAll('tr') ?? []).filter((row) => !row.querySelector('.inventory-empty-row'));

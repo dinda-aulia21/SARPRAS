@@ -35,9 +35,9 @@
                     <section class="report-type-section" aria-labelledby="report-type-title">
                         <h2 id="report-type-title">Jenis Laporan</h2>
                         <div class="report-type-grid">
-                            <a class="report-type-card {{ $type === 'inventaris' ? 'is-selected' : '' }}" href="{{ route('admin.laporan', array_merge(request()->query(), ['type' => 'inventaris'])) }}" @if ($type === 'inventaris') aria-current="page" @endif><span class="report-type-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg></span><span><strong>Laporan Inventaris</strong><small>Laporan data seluruh inventaris berdasarkan filter yang dipilih.</small></span><span class="report-card-arrow" aria-hidden="true">›</span></a>
-                            <a class="report-type-card {{ $type === 'kondisi' ? 'is-selected' : '' }}" href="{{ route('admin.laporan', array_merge(request()->query(), ['type' => 'kondisi'])) }}" @if ($type === 'kondisi') aria-current="page" @endif><span class="report-type-icon report-type-icon-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span><span><strong>Laporan Kondisi</strong><small>Rekap kondisi baik dan inventaris yang membutuhkan tindak lanjut.</small></span><span class="report-card-arrow" aria-hidden="true">›</span></a>
-                            <a class="report-type-card {{ $type === 'cetak' ? 'is-selected' : '' }}" href="{{ route('admin.laporan', array_merge(request()->query(), ['type' => 'cetak'])) }}" @if ($type === 'cetak') aria-current="page" @endif><span class="report-type-icon report-type-icon-slate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7zM17 11h.01"/></svg></span><span><strong>Cetak Laporan</strong><small>Cetak laporan inventaris dalam format siap cetak atau PDF.</small></span><span class="report-card-arrow" aria-hidden="true">›</span></a>
+                            <a class="report-type-card {{ $type === 'inventaris' ? 'is-selected' : '' }}" href="{{ route('admin.laporan', array_merge(request()->query(), ['type' => 'inventaris'])) }}" @if ($type === 'inventaris') aria-current="page" @endif><span class="report-type-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg></span><span><strong>Laporan Inventaris</strong><small>Laporan data seluruh inventaris berdasarkan filter yang dipilih.</small></span></a>
+                            <a class="report-type-card {{ $type === 'kondisi' ? 'is-selected' : '' }}" href="{{ route('admin.laporan', array_merge(request()->query(), ['type' => 'kondisi'])) }}" @if ($type === 'kondisi') aria-current="page" @endif><span class="report-type-icon report-type-icon-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span><span><strong>Laporan Kondisi</strong><small>Rekap kondisi baik dan inventaris yang membutuhkan tindak lanjut.</small></span></a>
+                            <a class="report-type-card {{ $type === 'cetak' ? 'is-selected' : '' }}" href="{{ route('admin.laporan', array_merge(request()->query(), ['type' => 'cetak'])) }}" @if ($type === 'cetak') aria-current="page" @endif><span class="report-type-icon report-type-icon-slate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7zM17 11h.01"/></svg></span><span><strong>Cetak Laporan</strong><small>Cetak laporan inventaris dalam format siap cetak atau PDF.</small></span></a>
                         </div>
                     </section>
                     <section class="report-filter-panel" aria-labelledby="report-filter-title">
@@ -52,7 +52,7 @@
                         </form>
                     </section>
                     <section class="report-table-panel dashboard-panel" aria-labelledby="report-table-title">
-                        <div class="report-table-heading"><div><h2 id="report-table-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg>Hasil {{ $reportTitle }}</h2><p>Menampilkan {{ $inventories->count() }} data inventaris</p></div><div class="report-export-actions"><button class="report-outline-button" type="button" data-export-csv><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg>CSV</button><button class="report-primary-button" type="button" data-print-report><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7z"/></svg>{{ $type === 'cetak' ? 'Cetak Sekarang' : 'Export PDF' }}</button></div></div>
+                        <div class="report-table-heading"><div><h2 id="report-table-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></svg>Hasil {{ $reportTitle }}</h2><p>Menampilkan {{ $inventories->count() }} data inventaris</p></div><div class="report-export-actions"><a class="report-outline-button" href="{{ route('admin.laporan.export', request()->query()) }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg>Excel</a><button class="report-primary-button" type="button" data-print-report><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2 2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7z"/></svg>{{ $type === 'cetak' ? 'Cetak Sekarang' : 'Export PDF' }}</button></div></div>
                         <div class="report-table-wrap"><table id="report-table"><thead><tr><th>No</th><th>Kode Barang</th><th>Nama Barang</th><th>Kategori</th><th>Lokasi</th><th>Jumlah</th><th>Kondisi</th><th>Tahun Perolehan</th></tr></thead><tbody>
                             @forelse ($inventories as $index => $inventory)
                                 @php($conditionClass = $inventory->condition === 'Baik' ? 'status-good' : ($inventory->condition === 'Rusak Ringan' ? 'status-minor' : 'status-major'))
@@ -75,15 +75,6 @@
             });
 
             document.querySelector('[data-print-report]')?.addEventListener('click', () => window.print());
-            document.querySelector('[data-export-csv]')?.addEventListener('click', () => {
-                const rows = [...document.querySelectorAll('#report-table tr')].map((row) => [...row.cells].map((cell) => `"${cell.innerText.replaceAll('"', '""')}"`).join(','));
-                const file = new Blob(['\ufeff' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(file);
-                link.download = 'laporan-inventaris.csv';
-                link.click();
-                URL.revokeObjectURL(link.href);
-            });
         </script>
     </body>
 </html>
