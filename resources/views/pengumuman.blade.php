@@ -73,7 +73,7 @@
             </main>
         </div>
 
-        <div class="announcement-modal" data-announcement-form-modal aria-hidden="true"><div class="announcement-modal-backdrop" data-close-announcement></div><section class="announcement-modal-content" role="dialog" aria-modal="true" aria-labelledby="announcement-form-title"><div class="announcement-modal-heading"><div><p class="panel-kicker">Pusat informasi</p><h2 id="announcement-form-title">Tambah Pengumuman</h2></div><button class="announcement-modal-close" type="button" data-close-announcement aria-label="Tutup">&times;</button></div><form class="announcement-form" action="{{ route('admin.pengumuman.store') }}" method="post" data-announcement-form>@csrf<input type="hidden" name="announcement_id" value="{{ old('announcement_id') }}"><div class="announcement-form-grid"><label for="announcement-title">Judul Pengumuman<input id="announcement-title" name="title" type="text" value="{{ old('title') }}" maxlength="255" required></label><label for="announcement-date">Tanggal<input id="announcement-date" name="publish_date" type="date" value="{{ old('publish_date', now()->format('Y-m-d')) }}" required></label><label for="announcement-status">Status<select id="announcement-status" name="status" required><option value="Aktif" @selected(old('status', 'Aktif') === 'Aktif')>Aktif</option><option value="Tidak Aktif" @selected(old('status') === 'Tidak Aktif')>Tidak Aktif</option></select></label><label class="announcement-body-field" for="announcement-body">Isi Pengumuman<textarea id="announcement-body" name="body" rows="5" maxlength="5000" required>{{ old('body') }}</textarea></label></div><div class="announcement-form-actions"><button class="announcement-cancel-button" type="button" data-close-announcement>Batal</button><button class="announcement-add-button" type="submit">Simpan Pengumuman</button></div></form></section></div>
+        <div class="announcement-modal" data-announcement-form-modal aria-hidden="true"><div class="announcement-modal-backdrop" data-close-announcement></div><section class="announcement-modal-content" role="dialog" aria-modal="true" aria-labelledby="announcement-form-title"><div class="announcement-modal-heading"><div><p class="panel-kicker">Pusat informasi</p><h2 id="announcement-form-title">Tambah Pengumuman</h2></div><button class="announcement-modal-close" type="button" data-close-announcement aria-label="Tutup">&times;</button></div><form class="announcement-form" action="{{ route('admin.pengumuman.store') }}" method="post" data-announcement-form>@csrf<input type="hidden" name="announcement_id" value="{{ old('announcement_id') }}"><div class="announcement-form-grid"><label for="announcement-title">Judul Pengumuman<input id="announcement-title" name="title" type="text" value="{{ old('title') }}" maxlength="255" required></label><label for="announcement-date">Tanggal<div class="announcement-date-picker" data-date-picker><input id="announcement-date" name="publish_date" type="hidden" value="{{ old('publish_date', now()->format('Y-m-d')) }}"><button class="announcement-date-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Pilih tanggal"><span data-date-label></span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></button><div class="announcement-date-popover" role="dialog" aria-label="Pilih tanggal" hidden><div class="announcement-date-header"><button type="button" data-date-previous aria-label="Bulan sebelumnya">‹</button><strong data-date-heading></strong><button type="button" data-date-next aria-label="Bulan berikutnya">›</button></div><div class="announcement-date-weekdays" aria-hidden="true"><span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span></div><div class="announcement-date-days" data-date-days></div><div class="announcement-date-footer"><button type="button" data-date-today>Hari ini</button></div></div></div></label><label for="announcement-status">Status<select id="announcement-status" name="status" required><option value="Aktif" @selected(old('status', 'Aktif') === 'Aktif')>Aktif</option><option value="Tidak Aktif" @selected(old('status') === 'Tidak Aktif')>Tidak Aktif</option></select></label><label class="announcement-body-field" for="announcement-body">Isi Pengumuman<textarea id="announcement-body" name="body" rows="5" maxlength="5000" required>{{ old('body') }}</textarea></label></div><div class="announcement-form-actions"><button class="announcement-cancel-button" type="button" data-close-announcement>Batal</button><button class="announcement-add-button" type="submit">Simpan Pengumuman</button></div></form></section></div>
         <div class="announcement-modal" data-announcement-detail-modal aria-hidden="true"><div class="announcement-modal-backdrop" data-close-announcement-detail></div><section class="announcement-modal-content announcement-detail-content" role="dialog" aria-modal="true" aria-labelledby="announcement-detail-title"><div class="announcement-modal-heading"><div><p class="panel-kicker">Detail pengumuman</p><h2 id="announcement-detail-title"></h2></div><button class="announcement-modal-close" type="button" data-close-announcement-detail aria-label="Tutup">&times;</button></div><div class="announcement-detail-meta"><span data-detail-date></span><span data-detail-status></span><span data-detail-author></span></div><p class="announcement-detail-body" data-detail-body></p></section></div>
 
         <script>
@@ -88,6 +88,105 @@
             const form = document.querySelector('[data-announcement-form]');
             const originalAction = form.action;
             const originalForm = form.innerHTML;
+            const initializeDatePicker = () => {
+                const picker = form.querySelector('[data-date-picker]');
+                if (!picker) return;
+
+                const input = picker.querySelector('#announcement-date');
+                const trigger = picker.querySelector('.announcement-date-trigger');
+                const label = picker.querySelector('[data-date-label]');
+                const popover = picker.querySelector('.announcement-date-popover');
+                const heading = picker.querySelector('[data-date-heading]');
+                const days = picker.querySelector('[data-date-days]');
+                const monthFormatter = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' });
+                const dateFormatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+                const today = new Date();
+                const toIsoDate = (date) => {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                };
+                const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(input.value)
+                    ? new Date(`${input.value}T00:00:00`)
+                    : null;
+                let selectedDate = parsedDate && toIsoDate(parsedDate) === input.value
+                    ? parsedDate
+                    : new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                let visibleMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                const updateSelection = (date) => {
+                    selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                    input.value = toIsoDate(selectedDate);
+                    label.textContent = dateFormatter.format(selectedDate);
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                };
+                const renderCalendar = () => {
+                    heading.textContent = monthFormatter.format(visibleMonth);
+                    days.replaceChildren();
+                    const firstWeekday = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1).getDay();
+                    const daysInMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0).getDate();
+                    const daysInPreviousMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 0).getDate();
+                    const todayIso = toIsoDate(today);
+
+                    for (let index = 0; index < 42; index += 1) {
+                        const dayNumber = index - firstWeekday + 1;
+                        const date = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), dayNumber);
+                        const button = document.createElement('button');
+                        const isCurrentMonth = dayNumber > 0 && dayNumber <= daysInMonth;
+                        button.type = 'button';
+                        button.className = 'announcement-date-day';
+                        button.textContent = String(
+                            dayNumber < 1 ? daysInPreviousMonth + dayNumber :
+                                dayNumber > daysInMonth ? dayNumber - daysInMonth : dayNumber
+                        );
+                        button.setAttribute('aria-label', dateFormatter.format(date));
+                        if (!isCurrentMonth) button.classList.add('is-outside-month');
+                        if (toIsoDate(date) === toIsoDate(selectedDate)) button.classList.add('is-selected');
+                        if (toIsoDate(date) === todayIso) button.classList.add('is-today');
+                        button.addEventListener('click', () => {
+                            updateSelection(date);
+                            closeCalendar();
+                            trigger.focus();
+                        });
+                        days.append(button);
+                    }
+                };
+                const closeCalendar = () => {
+                    popover.hidden = true;
+                    trigger.setAttribute('aria-expanded', 'false');
+                };
+
+                updateSelection(selectedDate);
+                renderCalendar();
+                trigger.addEventListener('click', () => {
+                    const isOpening = popover.hidden;
+                    popover.hidden = !isOpening;
+                    trigger.setAttribute('aria-expanded', String(isOpening));
+                    if (isOpening) renderCalendar();
+                });
+                picker.querySelector('[data-date-previous]').addEventListener('click', () => {
+                    visibleMonth.setMonth(visibleMonth.getMonth() - 1);
+                    renderCalendar();
+                });
+                picker.querySelector('[data-date-next]').addEventListener('click', () => {
+                    visibleMonth.setMonth(visibleMonth.getMonth() + 1);
+                    renderCalendar();
+                });
+                picker.querySelector('[data-date-today]').addEventListener('click', () => {
+                    updateSelection(today);
+                    visibleMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                    renderCalendar();
+                    closeCalendar();
+                    trigger.focus();
+                });
+                picker.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && !popover.hidden) {
+                        closeCalendar();
+                        trigger.focus();
+                    }
+                });
+            };
+            initializeDatePicker();
             const closeForm = () => {
                 formModal.classList.remove('is-visible');
                 formModal.setAttribute('aria-hidden', 'true');
@@ -100,11 +199,19 @@
             document.querySelector('[data-open-announcement]')?.addEventListener('click', () => {
                 form.action = originalAction;
                 form.innerHTML = originalForm;
+                initializeDatePicker();
                 document.querySelector('#announcement-form-title').textContent = 'Tambah Pengumuman';
                 openForm();
             });
-            form.addEventListener('click', (event) => {
-                if (event.target.closest('[data-close-announcement]')) closeForm();
+            formModal.querySelectorAll('[data-close-announcement]').forEach((button) => {
+                button.addEventListener('click', closeForm);
+            });
+            document.addEventListener('click', (event) => {
+                const activePicker = form.querySelector('[data-date-picker]');
+                if (!activePicker || activePicker.contains(event.target)) return;
+                const popover = activePicker.querySelector('.announcement-date-popover');
+                popover.hidden = true;
+                activePicker.querySelector('.announcement-date-trigger').setAttribute('aria-expanded', 'false');
             });
             document.querySelectorAll('[data-edit-announcement]').forEach((button) => button.addEventListener('click', () => {
                 form.action = `${originalAction}/${button.dataset.id}`;
@@ -119,6 +226,7 @@
                 form.querySelector('#announcement-title').value = button.dataset.title;
                 form.querySelector('#announcement-body').value = button.dataset.body;
                 form.querySelector('#announcement-date').value = button.dataset.date;
+                initializeDatePicker();
                 form.querySelector('#announcement-status').value = button.dataset.status;
                 openForm();
             }));

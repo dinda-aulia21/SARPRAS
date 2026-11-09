@@ -2,13 +2,17 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Models\Announcement;
+use App\Models\HakAkses;
 use App\Models\KategoriInventaris;
 use App\Models\Inventory;
 use App\Models\LokasiInventaris;
+use App\Models\PasswordChangeLog;
 use App\Models\UnitPendidikan;
 use App\Models\User;
 
@@ -106,6 +110,10 @@ $executiveDashboard = function (Request $request, string $dashboardTitle) use ($
 
 $requireAdmin = function (Request $request): void {
     abort_unless($request->user()->role === 'admin', 403);
+};
+
+$requireSystemAccount = function (User $account): void {
+    abort_unless(in_array($account->username, User::SYSTEM_ACCOUNT_USERNAMES, true), 404);
 };
 
 Route::get('/admin', function (Request $request) use ($executiveDashboard) {
@@ -298,7 +306,39 @@ Route::get('/admin/laporan/export', function (Request $request) use ($scopeToUse
 })->middleware('auth')->name('admin.laporan.export');
 
 Route::get('/admin/pengaturan', function (Request $request) {
-    return view('pengaturan', ['user' => $request->user()]);
+    $user = $request->user();
+    $viewData = ['user' => $user];
+
+    if ($user->role === 'admin') {
+        $accounts = User::query()
+            ->whereIn('username', User::SYSTEM_ACCOUNT_USERNAMES)
+            ->with('hakAkses')
+            ->with('unitPendidikan')
+            ->orderBy('nama_lengkap')
+            ->get();
+        $accountIds = $accounts->modelKeys();
+
+        $viewData['accounts'] = $accounts;
+        $viewData['activeAdminCount'] = $accounts
+            ->filter(fn ($account) => $account->role === 'admin' && $account->status !== 'nonaktif')
+            ->count();
+        $viewData['roles'] = HakAkses::query()->orderBy('id')->get();
+        $viewData['educationUnits'] = UnitPendidikan::query()->orderBy('nama_unit')->get();
+        $viewData['latestPasswordChanges'] = PasswordChangeLog::query()
+            ->whereIn('user_id', $accountIds)
+            ->orderByDesc('changed_at')
+            ->get()
+            ->unique('user_id')
+            ->keyBy('user_id');
+        $viewData['passwordChangeHistory'] = PasswordChangeLog::query()
+            ->with(['user', 'changedBy'])
+            ->whereIn('user_id', $accountIds)
+            ->orderByDesc('changed_at')
+            ->limit(20)
+            ->get();
+    }
+
+    return view('pengaturan', $viewData);
 })->middleware('auth')->name('admin.pengaturan');
 
 Route::get('/admin/pengumuman', function (Request $request) {
@@ -372,16 +412,188 @@ Route::put('/admin/pengaturan/profil', function (Request $request) {
     return redirect()->route('admin.pengaturan')->with('profile_success', 'Profil berhasil diperbarui.');
 })->middleware('auth')->name('admin.pengaturan.profil');
 
+Route::post('/admin/pengguna', function (Request $request) use ($requireAdmin) {
+    $requireAdmin($request);
+
+    abort(422, 'Sistem ini hanya menyediakan tiga akun resmi.');
+})->middleware('auth')->name('admin.pengguna.store');
+
+Route::put('/admin/pengguna/{account}', function (Request $request, User $account) use ($requireAdmin, $requireSystemAccount) {
+    $requireAdmin($request);
+    $requireSystemAccount($account);
+
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'max:255', Rule::unique('pengguna', 'email')->ignore($account->id)],
+        'role' => ['required', Rule::in(['admin', 'kepala_yayasan', 'kepala_sekolah'])],
+        'unit_pendidikan_id' => ['nullable', 'required_if:role,kepala_sekolah', 'exists:unit_pendidikan,id'],
+    ]);
+
+    if ($account->is($request->user()) && $validated['role'] !== $account->role) {
+        return back()->withErrors(['role' => 'Peran akun yang sedang digunakan tidak dapat diubah dari sini.']);
+    }
+
+    if ($account->role === 'admin' && $validated['role'] !== 'admin' && $account->status !== 'nonaktif') {
+        $remainingActiveAdmins = User::query()
+            ->whereHas('hakAkses', fn ($query) => $query->where('nama_hak_akses', 'Admin'))
+            ->where(fn ($query) => $query->where('status', 'aktif')->orWhereNull('status'))
+            ->where('id', '!=', $account->id)
+            ->count();
+        abort_if($remainingActiveAdmins === 0, 422, 'Peran admin aktif terakhir tidak dapat diubah.');
+    }
+
+    $roleName = match ($validated['role']) {
+        'admin' => 'Admin',
+        'kepala_yayasan' => 'Kepala Yayasan',
+        'kepala_sekolah' => 'Kepala Sekolah',
+    };
+    $account->update([
+        'nama_lengkap' => $validated['name'],
+        'email' => $validated['email'],
+        'hak_akses_id' => HakAkses::query()->where('nama_hak_akses', $roleName)->value('id'),
+        'unit_pendidikan_id' => $validated['role'] === 'kepala_sekolah' ? $validated['unit_pendidikan_id'] : null,
+    ]);
+
+    return redirect()->to(route('admin.pengaturan') . '#pemantauan-akun')
+        ->with('account_success', 'Informasi akun berhasil diperbarui.');
+})->middleware('auth')->name('admin.pengguna.update');
+
+Route::patch('/admin/pengguna/{account}/status', function (Request $request, User $account) use ($requireAdmin, $requireSystemAccount) {
+    $requireAdmin($request);
+    $requireSystemAccount($account);
+    $validated = $request->validate(['status' => ['required', Rule::in(['aktif', 'nonaktif'])]]);
+
+    if ($account->is($request->user()) && $validated['status'] === 'nonaktif') {
+        return back()->withErrors(['status' => 'Akun yang sedang digunakan tidak dapat dinonaktifkan.']);
+    }
+
+    if ($account->role === 'admin' && $validated['status'] === 'nonaktif') {
+        $activeAdminCount = User::query()
+            ->whereHas('hakAkses', fn ($query) => $query->where('nama_hak_akses', 'Admin'))
+            ->where(fn ($query) => $query->where('status', 'aktif')->orWhereNull('status'))
+            ->count();
+        abort_if($activeAdminCount <= 1, 422, 'Admin aktif terakhir tidak dapat dinonaktifkan.');
+    }
+
+    $account->update(['status' => $validated['status']]);
+
+    return redirect()->to(route('admin.pengaturan') . '#pemantauan-akun')
+        ->with('account_success', 'Status akun berhasil diperbarui.');
+})->middleware('auth')->name('admin.pengguna.status');
+
+Route::delete('/admin/pengguna/{account}', function (Request $request, User $account) use ($requireAdmin, $requireSystemAccount) {
+    $requireAdmin($request);
+    $requireSystemAccount($account);
+    abort_if($account->is($request->user()), 422, 'Akun yang sedang digunakan tidak dapat dihapus.');
+
+    if ($account->role === 'admin') {
+        $remainingActiveAdmins = User::query()
+            ->whereHas('hakAkses', fn ($query) => $query->where('nama_hak_akses', 'Admin'))
+            ->where(fn ($query) => $query->where('status', 'aktif')->orWhereNull('status'))
+            ->where('id', '!=', $account->id)
+            ->count();
+        abort_if($remainingActiveAdmins === 0, 422, 'Admin aktif terakhir tidak dapat dihapus.');
+    }
+
+    $email = $account->email;
+    DB::transaction(function () use ($account, $request) {
+        PasswordChangeLog::create([
+            'user_id' => $account->id,
+            'changed_by' => $request->user()->id,
+            'email' => $account->email,
+            'changed_at' => now(),
+            'action' => 'account_deleted',
+        ]);
+        $account->delete();
+    });
+
+    return redirect()->to(route('admin.pengaturan') . '#pemantauan-akun')
+        ->with('account_success', "Akun {$email} berhasil dihapus.");
+})->middleware('auth')->name('admin.pengguna.destroy');
+
+Route::post('/admin/pengguna/{account}/password-reset', function (Request $request, User $account) use ($requireAdmin, $requireSystemAccount) {
+    $requireAdmin($request);
+    $requireSystemAccount($account);
+    abort_if($account->status !== 'aktif', 422, 'Akun nonaktif tidak dapat direset password.');
+
+    $temporaryPassword = Str::random(20);
+
+    DB::transaction(function () use ($account, $request, $temporaryPassword) {
+        $account->update([
+            'password' => Hash::make($temporaryPassword),
+            'password_reset_required' => true,
+        ]);
+
+        PasswordChangeLog::create([
+            'user_id' => $account->id,
+            'changed_by' => $request->user()->id,
+            'email' => $account->email,
+            'changed_at' => now(),
+            'action' => 'admin_reset',
+        ]);
+    });
+
+    return redirect()->to(route('admin.pengaturan') . '#pemantauan-akun')->with('temporary_password_reset', [
+        'email' => $account->email,
+        'password' => $temporaryPassword,
+    ]);
+})->middleware('auth')->name('admin.pengguna.password-reset');
+
 Route::put('/admin/pengaturan/password', function (Request $request) {
     $validated = $request->validate([
         'current_password' => ['required', 'current_password'],
         'password' => ['required', 'string', 'min:8', 'confirmed'],
     ]);
 
-    $request->user()->update(['password' => Hash::make($validated['password'])]);
+    $account = $request->user();
+    DB::transaction(function () use ($account, $validated) {
+        $account->update([
+            'password' => Hash::make($validated['password']),
+            'password_reset_required' => false,
+        ]);
+
+        PasswordChangeLog::create([
+            'user_id' => $account->id,
+            'changed_by' => $account->id,
+            'email' => $account->email,
+            'changed_at' => now(),
+        ]);
+    });
 
     return redirect()->route('admin.pengaturan')->with('password_success', 'Password berhasil diperbarui.');
 })->middleware('auth')->name('admin.pengaturan.password');
+
+Route::get('/password/ubah-wajib', function (Request $request) {
+    return view('password-reset-required', ['user' => $request->user()]);
+})->middleware('auth')->name('password.force-change');
+
+Route::post('/password/ubah-wajib', function (Request $request) {
+    $validated = $request->validate([
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+    ]);
+
+    $user = $request->user();
+    DB::transaction(function () use ($user, $validated) {
+        $user->update([
+            'password' => Hash::make($validated['password']),
+            'password_reset_required' => false,
+        ]);
+
+        PasswordChangeLog::create([
+            'user_id' => $user->id,
+            'changed_by' => $user->id,
+            'email' => $user->email,
+            'changed_at' => now(),
+            'action' => 'password_changed',
+        ]);
+    });
+
+    return match ($user->role) {
+        'kepala_yayasan' => redirect()->route('kepala-yayasan.dashboard')->with('password_success', 'Password baru berhasil disimpan.'),
+        'kepala_sekolah' => redirect()->route('kepala-sekolah.dashboard')->with('password_success', 'Password baru berhasil disimpan.'),
+        default => redirect()->route('admin.dashboard')->with('password_success', 'Password baru berhasil disimpan.'),
+    };
+})->middleware('auth')->name('password.force-update');
 
 Route::put('/admin/pengguna/{schoolHead}/unit', function (Request $request, User $schoolHead) use ($requireAdmin) {
     $requireAdmin($request);
@@ -515,12 +727,19 @@ Route::post('/login', function () {
         'password' => ['required', 'string'],
     ]);
 
+    $account = User::query()->where('email', $credentials['email'])->first();
+    if ($account && $account->status === 'nonaktif') {
+        return back()->withErrors([
+            'email' => 'Akun ini sedang nonaktif. Hubungi administrator.',
+        ])->onlyInput('email');
+    }
+
     $invalidCredentialsResponse = fn () => back()->withErrors([
         'email' => 'Email atau password yang dimasukkan salah.',
     ])->onlyInput('email');
 
     if (! Auth::attempt($credentials, true)) {
-        $user = User::query()->where('email', $credentials['email'])->first();
+        $user = $account;
 
         if (! $user || ! hash_equals((string) $user->password, $credentials['password'])) {
             return $invalidCredentialsResponse();
@@ -531,6 +750,10 @@ Route::post('/login', function () {
     }
 
     request()->session()->regenerate();
+
+    if (Auth::user()->password_reset_required) {
+        return redirect()->route('password.force-change');
+    }
 
     if (Auth::user()->role === 'kepala_yayasan') {
         return redirect()->route('kepala-yayasan.dashboard');

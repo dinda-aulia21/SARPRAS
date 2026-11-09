@@ -9,7 +9,7 @@ document.querySelectorAll('[data-password-visibility]').forEach((button) => {
 		input.type = showPassword ? 'text' : 'password';
 		button.setAttribute('aria-label', `${showPassword ? 'Sembunyikan' : 'Tampilkan'} password`);
 		button.setAttribute('aria-pressed', String(showPassword));
-		button.querySelector('.password-eye-slash').hidden = showPassword;
+		button.classList.toggle('is-visible', showPassword);
 	});
 });
 

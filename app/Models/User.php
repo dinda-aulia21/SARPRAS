@@ -16,6 +16,8 @@ class User extends Authenticatable
 
     protected $table = 'pengguna';
 
+    public const SYSTEM_ACCOUNT_USERNAMES = ['admin', 'kepala', 'kepalasekolah'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -29,6 +31,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'password_reset_required',
         'role',
         'foto',
         'status',
@@ -52,6 +55,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'password_reset_required' => 'boolean',
     ];
 
     public function hakAkses(): BelongsTo
